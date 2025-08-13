@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Massimale e RM</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>💪</text></svg>">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>💪</text></svg>">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22>💪</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 35px; /* Modificato */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 580px; /* Modificato */
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px; /* Modificato */
+            font-size: 2.2em; /* Modificato */
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px; /* Modificato */
+            margin-bottom: 25px; /* Modificato */
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            max-width: 200px; /* Modificato */
+            min-width: 160px; /* Modificato */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 1em; /* Modificato */
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px; /* Modificato */
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em; /* Modificato */
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .formula-selector {
+            margin-bottom: 25px; /* Modificato */
+        }
+
+        .formula-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 1em; /* Modificato */
+        }
+        
+        select {
+             cursor: pointer;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 16px; /* Modificato */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em; /* Modificato */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px; /* Modificato */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .results {
+            display: none;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .max-result {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px; /* Modificato */
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px; /* Modificato */
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .max-result h2 {
+            font-size: 1.6em; /* Modificato */
+            margin-bottom: 8px; /* Modificato */
+        }
+
+        .max-result .max-value {
+            font-size: 2.8em; /* Modificato */
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .rm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Modificato */
+            gap: 12px; /* Modificato */
+            margin-bottom: 25px; /* Modificato */
+        }
+
+        .rm-item {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 15px; /* Modificato */
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .rm-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(116, 185, 255, 0.4);
+        }
+
+        .rm-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .rm-value {
+            font-size: 1.3em; /* Modificato */
+            font-weight: 700;
+        }
+
+        .comparison-results {
+            margin-top: 25px; /* Modificato */
+            margin-bottom: 25px; /* Modificato */
+        }
+        
+        .comparison-results h3 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 12px; /* Modificato */
+            font-size: 1.4em; /* Modificato */
+        }
+        
+        #comparisonList {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Modificato */
+        }
+        
+        #comparisonList li {
+            background: rgba(236, 240, 241, 0.8);
+            padding: 10px 15px; /* Modificato */
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em; /* Modificato */
+            transition: background 0.3s ease;
+        }
+        
+        #comparisonList li:hover {
+            background: rgba(220, 225, 226, 1);
+        }
+        
+        #comparisonList .formula-name {
+            color: #34495e;
+            font-weight: 600;
+        }
+        
+        #comparisonList .formula-value {
+            color: #2c3e50;
+            font-weight: 700;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .formula-info {
+            background: rgba(116, 185, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #74b9ff;
+        }
+
+        .formula-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .formula-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toast {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.4s ease-in-out;
+            min-width: 280px;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .input-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .input-group {
+                max-width: 100%;
+            }
+            .rm-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            #toast-container {
+                width: 90%;
+                bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💪 Calcolatore Massimale</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="weight">Carico (kg)</label>
+                <input type="number" id="weight" step="0.5" min="1">
+            </div>
+            <div class="input-group">
+                <label for="reps">Ripetizioni</label>
+                <input type="number" id="reps" min="1" max="20">
+            </div>
+        </div>
+        
+        <div class="formula-selector">
+            <label for="formula">Formula di calcolo</label>
+            <select id="formula">
+                <option value="brzycki">Brzycki (36/(37-reps))</option>
+                <option value="epley">Epley (1 + reps/30)</option>
+                <option value="lander">Lander (100/(101.3-2.67123*reps))</option>
+                <option value="lombardi">Lombardi (reps^0.10)</option>
+                <option value="mayhew">Mayhew (100/(52.2+41.9*e^(-0.055*reps)))</option>
+                <option value="oconner">O'Conner (1 + 0.025*reps)</option>
+                <option value="wathan">Wathan (100/(48.8+53.8*e^(-0.075*reps)))</option>
+            </select>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateRM()">
+            Calcola Massimale
+        </button>
+        
+        <div class="results" id="results">
+            <div class="max-result">
+                <h2>Il tuo 1RM (Massimale)</h2>
+                <div class="max-value" id="maxValue">0 kg</div>
+            </div>
+            
+            <div class="rm-grid" id="rmGrid">
+                <!-- I risultati RM verranno inseriti qui -->
+            </div>
+            
+            <div class="comparison-results">
+                <h3>Confronto Formule 1RM</h3>
+                <ul id="comparisonList">
+                    <!-- I risultati del confronto verranno inseriti qui -->
+                </ul>
+            </div>
+
+            <div class="formula-info">
+                <h3 id="formulaTitle"></h3>
+                <p id="formulaDescription"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        const formulas = {
+            brzycki: (w, r) => w * (36 / (37 - r)),
+            epley: (w, r) => w * (1 + r / 30),
+            lander: (w, r) => w * (100 / (101.3 - 2.67123 * r)),
+            lombardi: (w, r) => w * Math.pow(r, 0.10),
+            mayhew: (w, r) => w * (100 / (52.2 + 41.9 * Math.exp(-0.055 * r))),
+            oconner: (w, r) => w * (1 + 0.025 * r),
+            wathan: (w, r) => w * (100 / (48.8 + 53.8 * Math.exp(-0.075 * r)))
+        };
+
+        const formulaDetails = {
+            brzycki: { name: 'Brzycki', desc: '1RM = Carico × (36 / (37 - Ripetizioni))<br>Accurata per 2-10 ripetizioni, spesso usata in powerlifting.' },
+            epley: { name: 'Epley', desc: '1RM = Carico × (1 + Ripetizioni / 30)<br>Accurata per 2-10 ripetizioni, molto popolare.' },
+            lander: { name: 'Lander', desc: '1RM = Carico × (100 / (101.3 - 2.67123 × Ripetizioni))<br>Buona per ripetizioni moderate.' },
+            lombardi: { name: 'Lombardi', desc: '1RM = Carico × (Ripetizioni ^ 0.10)<br>Formula conservativa, tende a sottostimare.' },
+            mayhew: { name: 'Mayhew', desc: '1RM = Carico × (100 / (52.2 + 41.9 × e ^ (-0.055 × Ripetizioni)))<br>Basata su studi con atleti.' },
+            oconner: { name: 'O\'Conner', desc: '1RM = Carico × (1 + 0.025 × Ripetizioni)<br>Formula semplice e conservativa.' },
+            wathan: { name: 'Wathan', desc: '1RM = Carico × (100 / (48.8 + 53.8 × e ^ (-0.075 × Ripetizioni)))<br>Simile a Mayhew, buona per varie ripetizioni.' }
+        };
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000);
+        }
+
+        function calculateRM() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const reps = parseInt(document.getElementById('reps').value);
+            const selectedFormulaKey = document.getElementById('formula').value;
+            
+            if (!weight || !reps || weight <= 0 || reps <= 0) {
+                showToast('Inserisci valori validi per carico e ripetizioni.');
+                return;
+            }
+            
+            if (reps > 20) {
+                showToast('Calcolo più accurato con max 20 ripetizioni.');
+            }
+            
+            if (reps >= 37 && (selectedFormulaKey === 'brzycki')) {
+                 showToast('La formula di Brzycki non è valida per 37+ reps.');
+                 return;
+            }
+
+            // Calcola il 1RM con la formula selezionata
+            const oneRM = formulas[selectedFormulaKey](weight, reps);
+            
+            if (!isFinite(oneRM) || oneRM < 0) {
+                showToast('Il calcolo ha prodotto un risultato non valido.');
+                return;
+            }
+
+            document.getElementById('maxValue').textContent = oneRM.toFixed(1) + ' kg';
+            
+            // Aggiorna le informazioni della formula
+            document.getElementById('formulaTitle').textContent = `Formula utilizzata: ${formulaDetails[selectedFormulaKey].name}`;
+            document.getElementById('formulaDescription').innerHTML = formulaDetails[selectedFormulaKey].desc;
+            
+            // Calcola e popola la griglia RM
+            const rmGrid = document.getElementById('rmGrid');
+            rmGrid.innerHTML = '';
+            const percentages = { 2: 0.95, 3: 0.93, 4: 0.90, 5: 0.87, 6: 0.85, 7: 0.83, 8: 0.80, 9: 0.77, 10: 0.75, 11: 0.73, 12: 0.70 };
+            
+            for (let rm = 2; rm <= 12; rm++) {
+                const rmWeight = oneRM * percentages[rm];
+                const rmItem = document.createElement('div');
+                rmItem.className = 'rm-item';
+                rmItem.innerHTML = `<div class="rm-label">${rm}RM</div><div class="rm-value">${rmWeight.toFixed(1)} kg</div>`;
+                rmGrid.appendChild(rmItem);
+            }
+
+            // Calcola e popola la lista di confronto
+            const comparisonList = document.getElementById('comparisonList');
+            comparisonList.innerHTML = '';
+            const comparisonResults = [];
+            for (const key in formulas) {
+                const result = formulas[key](weight, reps);
+                if (result > 0 && isFinite(result)) {
+                    comparisonResults.push({
+                        name: formulaDetails[key].name,
+                        value: result
+                    });
+                }
+            }
+            comparisonResults.sort((a, b) => b.value - a.value);
+            comparisonResults.forEach(res => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="formula-name">${res.name}</span><span class="formula-value">${res.value.toFixed(1)} kg</span>`;
+                comparisonList.appendChild(li);
+            });
+            
+            // Mostra i risultati
+            const resultsDiv = document.getElementById('results');
+            if (!resultsDiv.classList.contains('show')) {
+                resultsDiv.classList.add('show');
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+        
+        let calculationTimeout;
+        function handleInputChange() {
+            clearTimeout(calculationTimeout);
+            const weight = document.getElementById('weight').value;
+            const reps = document.getElementById('reps').value;
+            if (weight && reps) {
+                calculationTimeout = setTimeout(calculateRM, 400);
+            }
+        }
+
+        document.getElementById('weight').addEventListener('input', handleInputChange);
+        document.getElementById('reps').addEventListener('input', handleInputChange);
+        document.getElementById('formula').addEventListener('change', handleInputChange);
+        document.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Evita l'invio di un form
+                calculateRM();
+            }
+        });
+
+        // Esegue un calcolo iniziale se ci sono valori (es. ricaricando la pagina)
+        document.addEventListener('DOMContentLoaded', () => {
+             // Imposta la formula Brzycki come default visivo al caricamento
+            document.getElementById('formulaTitle').textContent = `Formula utilizzata: ${formulaDetails['brzycki'].name}`;
+            document.getElementById('formulaDescription').innerHTML = formulaDetails['brzycki'].desc;
+            handleInputChange();
+        });
+    </script>
+</body>
+</html>
