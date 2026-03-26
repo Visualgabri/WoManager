@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Visualgabri/WoManager/master/Icon/WoClienti.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Allenamenti Clienti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+       
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+  </head>
+  <body class="bg-slate-50 min-h-screen p-4 sm:p-6 text-slate-800">
+    
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="mb-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Report Allenamenti</h1>
+          <p class="text-slate-500 mt-1 text-sm font-medium">Monitoraggio progressi atleti e completamento schede</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 bg-white p-2 sm:p-3 rounded-xl shadow-sm border border-slate-100">
+          <div class="flex items-center gap-2">
+            <label for="settimanaFiltro" class="text-sm font-semibold text-slate-700">Settimana:</label>
+            <select id="settimanaFiltro" onchange="renderCards()" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 cursor-pointer transition-colors hover:bg-slate-100">
+              <option value="0">Tutte</option>
+              <option value="1">Settimana 1</option>
+              <option value="2">Settimana 2</option>
+              <option value="3">Settimana 3</option>
+              <option value="4">Settimana 4</option>
+              <option value="5">Settimana 5</option>
+              <option value="6">Settimana 6</option>
+            </select>
+          </div>
+          
+          <div class="w-px h-8 bg-slate-200 hidden sm:block"></div>
+          
+          <div class="flex items-center gap-2">
+            <label for="clientiObsoletiFiltro" class="text-sm font-semibold text-slate-700">Obsoleti:</label>
+            <select id="clientiObsoletiFiltro" onchange="renderCards()" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 cursor-pointer transition-colors hover:bg-slate-100">
+              <option value="no">Nascondi</option>
+              <option value="si">Mostra Tutti</option>
+              <option value="solo">Solo Obsoleti</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div class="col-span-full flex flex-col items-center justify-center py-12">
+          <svg class="animate-spin h-8 w-8 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <p class="text-slate-500 font-medium">Caricamento dati atleti in corso...</p>
+        </div>
+      </div>
+      
+    </div>
+
+    <script>
+      let tuttiIDati = [];
+
+      
+      
+      
+      const datiIniettati = [{"nome":"Anastasia","cognome":"Ciampoletta","completati":"23/24 (96%)","perc":96,"timestamp":"31/01/2025 12:01","timeElapsed":"59 settimane e 6 giorni fa","mancanti":"C6","settimanaRaggiunta":6,"obsoleto":true,"note":"⚠️ Mancano 1 workout"},{"nome":"Andrea","cognome":"Giommetti","completati":"23/24 (96%)","perc":96,"timestamp":"09/01/2026 21:41","timeElapsed":"10 settimane e 6 giorni fa","mancanti":"D6","settimanaRaggiunta":6,"obsoleto":true,"note":"⚠️ Mancano 1 workout"},{"nome":"Chiara","cognome":"Lazzarini","completati":"21/24 (88%)","perc":88,"timestamp":"10/10/2025 18:28","timeElapsed":"23 settimane e 6 giorni fa","mancanti":"B6, C6, D6","settimanaRaggiunta":6,"obsoleto":true,"note":"⚠️ Mancano 3 workout"},{"nome":"Gabriele","cognome":"Belmonte","completati":"20/24 (83%)","perc":83,"timestamp":"26/03/2026 15:53","timeElapsed":"Oggi","mancanti":"A6, B6, C6, D6","settimanaRaggiunta":5,"obsoleto":false,"note":"⚠️ Mancano 4 workout"},{"nome":"Claudia","cognome":"Caligiana","completati":"20/24 (83%)","perc":83,"timestamp":"26/03/2026 14:03","timeElapsed":"Oggi","mancanti":"A6, B6, C6, D6","settimanaRaggiunta":5,"obsoleto":false,"note":"⚠️ Mancano 4 workout"},{"nome":"Filippo","cognome":"Cruccolini","completati":"19/24 (79%)","perc":79,"timestamp":"25/03/2026 22:10","timeElapsed":"Ieri","mancanti":"A6, B6, C6, D5, D6","settimanaRaggiunta":5,"obsoleto":false,"note":"⚠️ Mancano 5 workout"},{"nome":"Jessica","cognome":"Carletti","completati":"14/18 (78%)","perc":78,"timestamp":"26/03/2026 11:54","timeElapsed":"Oggi","mancanti":"A6, B6, C5, C6","settimanaRaggiunta":5,"obsoleto":false,"note":"⚠️ Mancano 4 workout"},{"nome":"Laura","cognome":"Becchetti","completati":"9/12 (75%)","perc":75,"timestamp":"13/10/2025 18:37","timeElapsed":"23 settimane e 3 giorni fa","mancanti":"A5, A6, B6","settimanaRaggiunta":5,"obsoleto":true,"note":"⚠️ Mancano 3 workout"},{"nome":"Riccardo","cognome":"Manetta","completati":"18/24 (75%)","perc":75,"timestamp":"09/08/2024 18:24","timeElapsed":"84 settimane e 6 giorni fa","mancanti":"A6, B6, C6, D4, D5, D6","settimanaRaggiunta":5,"obsoleto":true,"note":"⚠️ Mancano 6 workout"},{"nome":"Gianni","cognome":"Ferranti","completati":"15/24 (63%)","perc":63,"timestamp":"26/03/2026 15:56","timeElapsed":"Oggi","mancanti":"A5, A6, B5, B6, C5, C6, D4, D5, D6","settimanaRaggiunta":4,"obsoleto":false,"note":"⚠️ Mancano 9 workout"},{"nome":"Jenny","cognome":"Pichini","completati":"15/24 (63%)","perc":63,"timestamp":"06/08/2025 12:08","timeElapsed":"33 settimane e 1 giorno fa","mancanti":"A5, A6, B5, B6, C6, D3, D4, D5, D6","settimanaRaggiunta":4,"obsoleto":true,"note":"⚠️ Mancano 9 workout"},{"nome":"Francesco","cognome":"Gradi","completati":"10/18 (56%)","perc":56,"timestamp":"24/03/2026 08:56","timeElapsed":"2 giorni fa","mancanti":"A5, A6, B4, B5, B6, C4, C5, C6","settimanaRaggiunta":4,"obsoleto":false,"note":"⚠️ Mancano 8 workout"},{"nome":"Marina","cognome":"Torre","completati":"10/18 (56%)","perc":56,"timestamp":"25/03/2026 18:48","timeElapsed":"Ieri","mancanti":"A5, A6, B4, B5, B6, C4, C5, C6","settimanaRaggiunta":4,"obsoleto":false,"note":"⚠️ Mancano 8 workout"},{"nome":"Francesco","cognome":"Severini","completati":"12/24 (50%)","perc":50,"timestamp":"N/A","timeElapsed":"N/A","mancanti":"A4, A5, A6, B4, B5, B6, C4, C5, C6, D4, D5, D6","settimanaRaggiunta":3,"obsoleto":true,"note":"⚠️ Mancano 12 workout"},{"nome":"Gessica","cognome":"Zucchini","completati":"9/18 (50%)","perc":50,"timestamp":"03/04/2025 07:34","timeElapsed":"51 settimane fa","mancanti":"A4, A5, A6, B4, B5, B6, C4, C5, C6","settimanaRaggiunta":3,"obsoleto":true,"note":"⚠️ Mancano 9 workout"},{"nome":"Francesco","cognome":"De Vitis","completati":"17/36 (47%)","perc":47,"timestamp":"04/03/2026 17:42","timeElapsed":"3 settimane e 1 giorno fa","mancanti":"A4, A5, A6, B4, B5, B6, C4, C5, C6, D4, D5, D6, E4, E5, E6, F3, F4, F5, F6","settimanaRaggiunta":3,"obsoleto":false,"note":"⚠️ Mancano 19 workout"},{"nome":"Emma","cognome":"Viali","completati":"14/30 (47%)","perc":47,"timestamp":"26/03/2026 08:38","timeElapsed":"Oggi","mancanti":"A4, A5, A6, B4, B5, B6, C4, C5, C6, D4, D5, D6, E3, E4, E5, E6","settimanaRaggiunta":3,"obsoleto":false,"note":"⚠️ Mancano 16 workout"},{"nome":"Alessia","cognome":"Peroli","completati":"9/24 (38%)","perc":38,"timestamp":"N/A","timeElapsed":"N/A","mancanti":"A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D3, D4, D5, D6","settimanaRaggiunta":3,"obsoleto":true,"note":"⚠️ Mancano 15 workout"},{"nome":"Elisa","cognome":"Sanna","completati":"9/24 (38%)","perc":38,"timestamp":"26/11/2024 20:05","timeElapsed":"69 settimane e 2 giorni fa","mancanti":"A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D3, D4, D5, D6","settimanaRaggiunta":3,"obsoleto":true,"note":"⚠️ Mancano 15 workout"},{"nome":"Giulietta","cognome":"Bernareggi","completati":"8/24 (33%)","perc":33,"timestamp":"26/03/2026 08:48","timeElapsed":"Oggi","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D3, D4, D5, D6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 16 workout"},{"nome":"Gabriele","cognome":"Cappelli","completati":"8/24 (33%)","perc":33,"timestamp":"26/03/2026 19:59","timeElapsed":"Oggi","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D3, D4, D5, D6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 16 workout"},{"nome":"Rachel","cognome":"Cucurnia","completati":"6/18 (33%)","perc":33,"timestamp":"23/03/2026 18:32","timeElapsed":"3 giorni fa","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 12 workout"},{"nome":"Tiziano","cognome":"Passetti","completati":"8/24 (33%)","perc":33,"timestamp":"10/03/2026 21:58","timeElapsed":"2 settimane e 2 giorni fa","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D3, D4, D5, D6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 16 workout"},{"nome":"Stefania","cognome":"Tantari","completati":"6/18 (33%)","perc":33,"timestamp":"26/03/2026 20:04","timeElapsed":"Oggi","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 12 workout"},{"nome":"Emanuele","cognome":"Furia","completati":"7/24 (29%)","perc":29,"timestamp":"25/03/2026 12:39","timeElapsed":"Ieri","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C3, C4, C5, C6, D2, D3, D4, D5, D6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 17 workout"},{"nome":"Carla","cognome":"Leone","completati":"8/30 (27%)","perc":27,"timestamp":"26/03/2026 06:23","timeElapsed":"Oggi","mancanti":"A3, A4, A5, A6, B3, B4, B5, B6, C2, C3, C4, C5, C6, D2, D3, D4, D5, D6, E3, E4, E5, E6","settimanaRaggiunta":2,"obsoleto":false,"note":"⚠️ Mancano 22 workout"},{"nome":"Filippo","cognome":"Primieri","completati":"4/18 (22%)","perc":22,"timestamp":"01/10/2024 14:01","timeElapsed":"77 settimane e 2 giorni fa","mancanti":"A3, A4, A5, A6, B2, B3, B4, B5, B6, C2, C3, C4, C5, C6","settimanaRaggiunta":2,"obsoleto":true,"note":"⚠️ Mancano 14 workout"},{"nome":"Claudia","cognome":"Antonini","completati":"0/18 (0%)","perc":0,"timestamp":"04/06/2025 11:42","timeElapsed":"42 settimane e 1 giorno fa","mancanti":"A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6, C1, C2, C3, C4, C5, C6","settimanaRaggiunta":0,"obsoleto":true,"note":"⚠️ Mancano 18 workout"},{"nome":"Franca","cognome":"Balducci","completati":"0/18 (0%)","perc":0,"timestamp":"26/03/2026 21:28","timeElapsed":"Oggi","mancanti":"A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6, C1, C2, C3, C4, C5, C6","settimanaRaggiunta":0,"obsoleto":false,"note":"⚠️ Mancano 18 workout"},{"nome":"Eugenia","cognome":"Falini","completati":"0/24 (0%)","perc":0,"timestamp":"26/03/2026 18:44","timeElapsed":"Oggi","mancanti":"A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6, C1, C2, C3, C4, C5, C6, D1, D2, D3, D4, D5, D6","settimanaRaggiunta":0,"obsoleto":false,"note":"⚠️ Mancano 24 workout"},{"nome":"Lucia","cognome":"Gozzi","completati":"0/24 (0%)","perc":0,"timestamp":"N/A","timeElapsed":"N/A","mancanti":"A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6, C1, C2, C3, C4, C5, C6, D1, D2, D3, D4, D5, D6","settimanaRaggiunta":0,"obsoleto":false,"note":"⚠️ Mancano 24 workout"},{"nome":"Damiano","cognome":"Rossi","completati":"0/18 (0%)","perc":0,"timestamp":"26/03/2026 10:55","timeElapsed":"Oggi","mancanti":"A1, A2, A3, A4, A5, A6, B1, B2, B3, B4, B5, B6, C1, C2, C3, C4, C5, C6","settimanaRaggiunta":0,"obsoleto":false,"note":"⚠️ Mancano 18 workout"}];
+
+      if (datiIniettati) {
+        tuttiIDati = datiIniettati;
+        setTimeout(renderCards, 50); 
+      } else if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(function(response) {
+          tuttiIDati = response.log;
+          renderCards();
+        }).logClientWorkouts();
+      }
+
+      
+      
+      
+      function renderCards() {
+        const container = document.getElementById("content");
+        if (!container) return;
+        container.innerHTML = "";
+        
+        const filtroSettimana = parseInt(document.getElementById("settimanaFiltro").value || 0);
+        const filtroObsoleti = document.getElementById("clientiObsoletiFiltro").value;
+        
+        let filtrati = tuttiIDati;
+        
+        
+        if (filtroSettimana > 0) {
+          filtrati = filtrati.filter(item => item.settimanaRaggiunta === filtroSettimana);
+        }
+        
+        if (filtroObsoleti === "no") {
+          filtrati = filtrati.filter(item => !item.obsoleto);
+        } else if (filtroObsoleti === "solo") {
+          filtrati = filtrati.filter(item => item.obsoleto);
+        }
+
+        
+        if (filtrati.length === 0) {
+          container.innerHTML = `
+            <div class='col-span-full bg-slate-100/50 border border-slate-200 p-8 rounded-2xl flex flex-col items-center justify-center'>
+              <svg class="w-12 h-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p class='text-slate-600 text-lg font-medium'>Nessun atleta trovato con i filtri attuali.</p>
+            </div>`;
+          return;
+        }
+
+        // Creazione Cards
+        filtrati.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100 p-5 flex flex-col h-full";
+          
+          
+          let barColor = "bg-rose-500";
+          let textColor = "text-rose-600";
+          let badgeBg = "bg-rose-50";
+          
+          if (item.perc >= 75) {
+            barColor = "bg-emerald-500";
+            textColor = "text-emerald-600";
+            badgeBg = "bg-emerald-50";
+          } else if (item.perc >= 35) {
+            barColor = "bg-amber-400";
+            textColor = "text-amber-600";
+            badgeBg = "bg-amber-50";
+          }
+          
+          
+          const obsoletoBadge = item.obsoleto ? 
+            `<span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-200">Obsoleto</span>` : '';
+          
+          // Icone SVG
+          const checkIcon = `<svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`;
+          const alertIcon = `<svg class="w-4 h-4 text-rose-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
+          
+          card.innerHTML = `
+            <div class="flex justify-between items-start mb-4">
+              <div class="pr-2">
+                <h2 class="text-base font-bold text-slate-800 leading-tight">${item.nome} <br/><span class="text-slate-600 font-semibold">${item.cognome}</span></h2>
+                <div class="flex items-center mt-1.5 text-xs text-slate-400 font-medium">
+                  <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  ${item.timestamp}
+                </div>
+              </div>
+              ${obsoletoBadge}
+            </div>
+            
+            <div class="mb-4">
+              <div class="flex justify-between items-end mb-1.5">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completati: <span class="text-slate-800">${item.completati}</span></span>
+                <span class="text-lg font-black ${textColor}">${Math.round(item.perc)}%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ring-1 ring-inset ring-slate-200">
+                <div class="${barColor} h-full rounded-full transition-all duration-700 ease-out" style="width: ${item.perc}%"></div>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold ${badgeBg} ${textColor} border border-current/10">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                Settimana ${item.settimanaRaggiunta}/6
+              </span>
+              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+                <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                ${item.timeElapsed}
+              </span>
+            </div>
+            
+            <div class="mt-auto pt-3 border-t border-slate-100 space-y-2">
+              ${item.mancanti && item.mancanti !== '-' ? `
+                <div class="flex items-start bg-rose-50/50 p-2 rounded-lg border border-rose-100">
+                  ${alertIcon}
+                  <div class="ml-1.5">
+                    <p class="text-[11px] font-bold text-rose-800 uppercase tracking-wider mb-0.5">Workout Mancanti</p>
+                    <p class="text-rose-600 text-xs font-medium leading-relaxed">${item.mancanti}</p>
+                  </div>
+                </div>
+              ` : `
+                <div class="flex items-center bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                  ${checkIcon}
+                  <p class="text-emerald-700 text-xs font-bold ml-1.5 uppercase tracking-wide">Percorso Netto</p>
+                </div>
+              `}
+              
+              ${item.note && item.note !== '✔ Tutto completato' ? `
+                <div class="flex items-start px-1 mt-2">
+                  <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1v-3a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                  <p class="text-amber-700 text-xs font-medium ml-1.5">${item.note}</p>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          
+          container.appendChild(card);
+        });
+      }
+    </script>
+  </body>
+</html>
