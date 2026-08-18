@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Load & Reps Calculator | Natural Bodybuilding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0B0F17;
+      --card-bg: #131A26;
+      --card-border: #1E293B;
+      --accent: #F59E0B;
+      --accent-glow: rgba(245, 158, 11, 0.2);
+      --accent-hover: #D97706;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --success: #10B981;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.05);
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .app-header h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #FFF;
+      letter-spacing: -0.02em;
+    }
+
+    .app-header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 580px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .app-container {
+        padding: 24px 18px;
+      }
+    }
+
+    .section-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .label-hint {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      font-weight: 400;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0B0F17;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #FFF;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .unit-tag {
+      position: absolute;
+      right: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .options-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 580px) {
+      .options-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .result-card {
+      margin-top: 24px;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 120px;
+      background: var(--accent);
+      filter: blur(60px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .result-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .main-weight {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3rem;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.1;
+      margin: 10px 0 6px 0;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .main-weight span {
+      font-size: 1.4rem;
+      color: var(--accent);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin-top: 4px;
+    }
+
+    .formula-table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .formula-table th {
+      text-align: left;
+      color: var(--text-dim);
+      padding: 6px 8px;
+      font-weight: 600;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    .formula-table td {
+      padding: 8px;
+      color: var(--text-muted);
+      border-bottom: 1px solid #1E293B;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .formula-table tr.active-row td {
+      color: var(--accent);
+      font-weight: 700;
+      background: rgba(245, 158, 11, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="app-header">
+      <div class="badge">Bodybuilding Analytics</div>
+      <h1>Load & Reps Extrapolator</h1>
+      <p>Calcolo scientifico del carico target partendo da serie reali ed RIR</p>
+    </div>
+
+    <!-- Inputs -->
+    <div class="grid-2">
+      <!-- Dati Eseguiti -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>⚡</span> Serie Eseguita
+        </div>
+        <div class="input-group">
+          <label>Carico Utilizzato <span class="label-hint">Effettivo</span></label>
+          <div class="input-wrapper">
+            <input type="number" id="currWeight" value="57" step="0.5" min="1">
+            <span class="unit-tag">kg</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Reps Completate <span class="label-hint">Contate</span></label>
+          <div class="input-wrapper">
+            <input type="number" id="currReps" value="16" min="1" max="100">
+            <span class="unit-tag">reps</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Buffer / RIR <span class="label-hint">Reps in reserve</span></label>
+          <select id="currRir">
+            <option value="0" selected>RIR 0 (Cedimento)</option>
+            <option value="1">RIR 1 (1 rep di buffer)</option>
+            <option value="2">RIR 2 (2 reps di buffer)</option>
+            <option value="3">RIR 3 (3 reps di buffer)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Target Voluto -->
+      <div class="section-box">
+        <div class="section-title">
+          <span>🎯</span> Obiettivo Target
+        </div>
+        <div class="input-group">
+          <label>Reps Desiderate <span class="label-hint">Target</span></label>
+          <div class="input-wrapper">
+            <input type="number" id="targetReps" value="20" min="1" max="100">
+            <span class="unit-tag">reps</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Buffer Target <span class="label-hint">RIR previsto</span></label>
+          <select id="targetRir">
+            <option value="0" selected>RIR 0 (Cedimento)</option>
+            <option value="1">RIR 1 (1 rep di buffer)</option>
+            <option value="2">RIR 2 (2 reps di buffer)</option>
+            <option value="3">RIR 3 (3 reps di buffer)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Passo Arrotondamento <span class="label-hint">Dischi/Pacco</span></label>
+          <select id="roundStep">
+            <option value="0.5" selected>0.5 kg (Dischi piccoli)</option>
+            <option value="1.0">1.0 kg</option>
+            <option value="2.5">2.5 kg (Manubri standard)</option>
+            <option value="5.0">5.0 kg (Pacco pesi)</option>
+            <option value="0">Nessuno (Esatto)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options Formula -->
+    <div class="options-row">
+      <div class="input-group">
+        <label>Formula di Conversione</label>
+        <select id="formulaSelect">
+          <option value="epley" selected>Epley (Standard bodybuilding)</option>
+          <option value="brzycki">Brzycki</option>
+          <option value="wathan">Wathan</option>
+          <option value="lombardi">Lombardi (Ottima su alte reps)</option>
+          <option value="average">Media Composta (Tutte le formule)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Modalità Calcolo</label>
+        <select id="calcMode" disabled>
+          <option value="auto">Rapporto Diretto 1RM</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Result Banner -->
+    <div class="result-card">
+      <div class="result-title">Carico Iniziale Consigliato</div>
+      <div class="main-weight" id="suggestedWeight">52.5 <span>kg</span></div>
+      <div style="font-size: 0.82rem; color: var(--text-muted);" id="exactWeightText">Valore matematico esatto: 52.44 kg</div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">1RM Stimato</div>
+          <div class="stat-val" id="est1RM">87.4 kg</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">% 1RM Target</div>
+          <div class="stat-val" id="percent1RM">60.0%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Variazione Carico</div>
+          <div class="stat-val" id="weightDelta" style="color: #F87171;">-4.5 kg (-7.9%)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div style="margin-top: 24px;">
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+        Confronto Scientifico tra Modelli
+      </div>
+      <table class="formula-table">
+        <thead>
+          <tr>
+            <th>Formula</th>
+            <th>1RM Stimato</th>
+            <th>Carico Calcolato</th>
+          </tr>
+        </thead>
+        <tbody id="comparisonTbody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Formule Matematiche
+    const formulas = {
+      epley: {
+        name: "Epley",
+        get1RM: (w, r) => r === 1 ? w : w * (1 + r / 30),
+        getWeight: (orm, r) => r === 1 ? orm : orm / (1 + r / 30)
+      },
+      brzycki: {
+        name: "Brzycki",
+        get1RM: (w, r) => r >= 37 ? w * (1 + r / 30) : w / (1.0278 - 0.0278 * r),
+        getWeight: (orm, r) => orm * (1.0278 - 0.0278 * r)
+      },
+      wathan: {
+        name: "Wathan",
+        get1RM: (w, r) => (100 * w) / (48.8 + 53.8 * Math.exp(-0.075 * r)),
+        getWeight: (orm, r) => (orm * (48.8 + 53.8 * Math.exp(-0.075 * r))) / 100
+      },
+      lombardi: {
+        name: "Lombardi",
+        get1RM: (w, r) => w * Math.pow(r, 0.10),
+        getWeight: (orm, r) => orm / Math.pow(r, 0.10)
+      }
+    };
+
+    function roundTo(val, step) {
+      if (step === 0) return Math.round(val * 100) / 100;
+      return Math.round(val / step) * step;
+    }
+
+    function calculate() {
+      const currWeight = parseFloat(document.getElementById('currWeight').value) || 0;
+      const currReps = parseInt(document.getElementById('currReps').value) || 0;
+      const currRir = parseInt(document.getElementById('currRir').value) || 0;
+      const targetReps = parseInt(document.getElementById('targetReps').value) || 0;
+      const targetRir = parseInt(document.getElementById('targetRir').value) || 0;
+      const roundStep = parseFloat(document.getElementById('roundStep').value);
+      const selectedFormula = document.getElementById('formulaSelect').value;
+
+      if (currWeight <= 0 || currReps <= 0 || targetReps <= 0) return;
+
+      // Reps effettive tenendo conto del buffer (RIR)
+      const effectiveCurrReps = currReps + currRir;
+      const effectiveTargetReps = targetReps + targetRir;
+
+      let est1RM = 0;
+      let exactTargetWeight = 0;
+
+      const singleKeys = ['epley', 'brzycki', 'wathan', 'lombardi'];
+      const tableRows = [];
+
+      let sum1RM = 0;
+      let sumTarget = 0;
+
+      singleKeys.forEach(k => {
+        const f = formulas[k];
+        const f1RM = f.get1RM(currWeight, effectiveCurrReps);
+        const fTarget = f.getWeight(f1RM, effectiveTargetReps);
+        sum1RM += f1RM;
+        sumTarget += fTarget;
+
+        tableRows.push({
+          key: k,
+          name: f.name,
+          orm: f1RM,
+          target: fTarget
+        });
+      });
+
+      if (selectedFormula === 'average') {
+        est1RM = sum1RM / singleKeys.length;
+        exactTargetWeight = sumTarget / singleKeys.length;
+      } else {
+        const activeF = formulas[selectedFormula];
+        est1RM = activeF.get1RM(currWeight, effectiveCurrReps);
+        exactTargetWeight = activeF.getWeight(est1RM, effectiveTargetReps);
+      }
+
+      const roundedWeight = roundTo(exactTargetWeight, roundStep);
+      const pct1RM = (exactTargetWeight / est1RM) * 100;
+      const deltaWeight = roundedWeight - currWeight;
+      const deltaPct = ((deltaWeight / currWeight) * 100).toFixed(1);
+
+      // Render Display
+      document.getElementById('suggestedWeight').innerHTML = `${roundedWeight.toFixed(roundStep === 0.5 || roundStep === 2.5 || roundStep === 5 ? (roundedWeight % 1 === 0 ? 0 : 1) : (roundStep === 0 ? 2 : 0))} <span>kg</span>`;
+      document.getElementById('exactWeightText').innerText = `Valore matematico esatto: ${exactTargetWeight.toFixed(2)} kg`;
+      document.getElementById('est1RM').innerText = `${est1RM.toFixed(1)} kg`;
+      document.getElementById('percent1RM').innerText = `${pct1RM.toFixed(1)}%`;
+
+      const deltaEl = document.getElementById('weightDelta');
+      const sign = deltaWeight > 0 ? '+' : '';
+      deltaEl.innerText = `${sign}${deltaWeight.toFixed(1)} kg (${sign}${deltaPct}%)`;
+      deltaEl.style.color = deltaWeight >= 0 ? '#10B981' : '#F87171';
+
+      // Render Comparison Table
+      const tbody = document.getElementById('comparisonTbody');
+      tbody.innerHTML = '';
+      tableRows.forEach(row => {
+        const tr = document.createElement('tr');
+        if (selectedFormula === row.key) tr.classList.add('active-row');
+        tr.innerHTML = `
+          <td>${row.name} ${selectedFormula === row.key ? '★' : ''}</td>
+          <td>${row.orm.toFixed(1)} kg</td>
+          <td>${row.target.toFixed(2)} kg (${roundTo(row.target, roundStep).toFixed(1)} kg)</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Event Listeners
+    const inputs = ['currWeight', 'currReps', 'currRir', 'targetReps', 'targetRir', 'roundStep', 'formulaSelect'];
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', calculate);
+      document.getElementById(id).addEventListener('change', calculate);
+    });
+
+    // Initial run
+    calculate();
+  </script>
+</body>
+</html>
