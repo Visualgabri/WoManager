@@ -85,9 +85,21 @@
             flex-direction: column;
         }
 
-        #bw-group {
+        /* Container per opzioni trazioni (BW, Sesso, Età) */
+        #pullup-options {
             display: none;
+            grid-column: 1 / -1; /* Occupa tutta la larghezza */
+            background: rgba(102, 126, 234, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
             animation: fadeIn 0.4s ease;
+        }
+
+        .pullup-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
         @keyframes fadeIn {
@@ -99,15 +111,15 @@
             margin-bottom: 6px;
             font-weight: 600;
             color: #34495e;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
 
         input, select {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1.05em;
+            border-radius: 10px;
+            font-size: 1em;
             transition: all 0.3s ease;
             background: #f8fafc;
             color: #1e293b;
@@ -121,18 +133,16 @@
             background: white;
         }
 
-        .formula-selector {
-            margin-bottom: 25px;
-        }
-        
         select {
              cursor: pointer;
              appearance: none;
              background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334495e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
              background-repeat: no-repeat;
-             background-position: right 15px center;
-             background-size: 16px;
+             background-position: right 10px center;
+             background-size: 14px;
         }
+
+        .formula-selector { margin-bottom: 25px; }
 
         .calculate-btn {
             width: 100%;
@@ -160,12 +170,8 @@
             display: none;
             animation: fadeIn 0.5s ease;
         }
+        .results.show { display: block; }
 
-        .results.show {
-            display: block;
-        }
-
-        /* Container per 1RM e Reps a vuoto */
         .primary-results-grid {
             display: grid;
             gap: 15px;
@@ -188,11 +194,11 @@
             border-radius: 16px;
             text-align: center;
             box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
-            display: none; /* Mostrato solo nelle trazioni */
+            display: none;
         }
 
         .max-result h2, .bw-reps-result h3 {
-            font-size: 1.2em;
+            font-size: 1.1em;
             margin-bottom: 8px;
             font-weight: 600;
         }
@@ -217,6 +223,28 @@
             font-weight: 500;
         }
 
+        /* Stile per il livello di forza */
+        .strength-level {
+            display: none;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 0.4s ease;
+        }
+        .strength-level.show { display: block; }
+        .lvl-principiante { background: #94a3b8; }
+        .lvl-novizio { background: #2ecc71; }
+        .lvl-intermedio { background: #3498db; }
+        .lvl-avanzato { background: #9b59b6; }
+        .lvl-elite { background: #f1c40f; color: #786004; }
+
         .rm-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -233,24 +261,9 @@
             box-shadow: 0 4px 10px rgba(116, 185, 255, 0.2);
         }
 
-        .rm-label {
-            font-size: 0.85em;
-            font-weight: 700;
-            margin-bottom: 3px;
-            opacity: 0.9;
-        }
-
-        .rm-value {
-            font-size: 1.15em;
-            font-weight: 800;
-        }
-
-        .rm-assisted {
-            font-size: 0.7em;
-            display: block;
-            opacity: 0.8;
-            margin-top: 2px;
-        }
+        .rm-label { font-size: 0.85em; font-weight: 700; margin-bottom: 3px; opacity: 0.9; }
+        .rm-value { font-size: 1.15em; font-weight: 800; }
+        .rm-assisted { font-size: 0.7em; display: block; opacity: 0.8; margin-top: 2px; }
 
         .comparison-results h3 {
             text-align: center;
@@ -276,11 +289,7 @@
             font-size: 0.95em;
         }
         
-        #comparisonList .formula-name {
-            color: #475569;
-            font-weight: 600;
-        }
-        
+        #comparisonList .formula-name { color: #475569; font-weight: 600; }
         #comparisonList .formula-value {
             color: #0f172a;
             font-weight: 800;
@@ -297,18 +306,8 @@
             margin-top: 20px;
             border-left: 4px solid #22c55e;
         }
-
-        .formula-info h3 {
-            color: #166534;
-            margin-bottom: 6px;
-            font-size: 1.1em;
-        }
-
-        .formula-info p {
-            color: #15803d;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
+        .formula-info h3 { color: #166534; margin-bottom: 6px; font-size: 1.1em; }
+        .formula-info p { color: #15803d; font-size: 0.9em; line-height: 1.4; }
         
         #toast-container {
             position: fixed;
@@ -336,19 +335,12 @@
             font-weight: 500;
             font-size: 0.95em;
         }
+        .toast.show { opacity: 1; transform: translateY(0); }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 400px) {
-            .rm-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .container {
-                padding: 25px 15px;
-            }
+        @media (max-width: 450px) {
+            .pullup-grid { grid-template-columns: 1fr; }
+            .rm-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 25px 15px; }
         }
     </style>
 </head>
@@ -359,14 +351,33 @@
         <!-- Selettore Modalità -->
         <div class="mode-selector">
             <button class="mode-btn active" id="btn-standard" onclick="setMode('standard')">Standard</button>
-            <button class="mode-btn" id="btn-pullup" onclick="setMode('pullup')">Trazioni Zavorrate</button>
+            <button class="mode-btn" id="btn-pullup" onclick="setMode('pullup')">Trazioni</button>
         </div>
         
         <div class="input-section">
-            <div class="input-group" id="bw-group">
-                <label for="bodyweight">Peso Corporeo (kg)</label>
-                <input type="number" id="bodyweight" step="0.5" min="20" placeholder="Es. 75">
+            
+            <!-- Pannello Trazioni (BW, Sesso, Età) -->
+            <div id="pullup-options">
+                <div class="pullup-grid">
+                    <div class="input-group">
+                        <label for="bodyweight">Peso (kg)*</label>
+                        <input type="number" id="bodyweight" step="0.5" min="20" placeholder="Es. 75">
+                    </div>
+                    <div class="input-group">
+                        <label for="gender">Sesso (Opz.)</label>
+                        <select id="gender">
+                            <option value="">Nessuno</option>
+                            <option value="male">Uomo</option>
+                            <option value="female">Donna</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="age">Età (Opz.)</label>
+                        <input type="number" id="age" min="10" max="100" placeholder="Anni">
+                    </div>
+                </div>
             </div>
+
             <div class="input-group">
                 <label id="weight-label" for="weight">Carico (kg)</label>
                 <input type="number" id="weight" step="0.5" min="0" placeholder="Es. 80">
@@ -403,12 +414,17 @@
                     <div class="max-subtext" id="maxSubtext"></div>
                 </div>
                 
-                <!-- Nuovo riquadro per le reps a corpo libero -->
+                <!-- Riquadro reps a corpo libero -->
                 <div class="bw-reps-result" id="bwRepsContainer">
-                    <h3>Stima Reps Corpo Libero</h3>
+                    <h3>Stima Reps a Vuoto</h3>
                     <div class="bw-reps-value" id="bwRepsValue">0</div>
-                    <div class="max-subtext">Senza zavorra</div>
+                    <div class="max-subtext">Corpo libero</div>
                 </div>
+            </div>
+
+            <!-- Riquadro Livello di Forza -->
+            <div id="strengthLevel" class="strength-level">
+                Livello: <span id="strengthText"></span>
             </div>
             
             <div class="rm-grid" id="rmGrid">
@@ -434,7 +450,6 @@
     <script>
         let currentMode = 'standard';
 
-        // Formule dirette (Calcolo del 1RM dato Carico e Reps)
         const formulas = {
             brzycki: (w, r) => w * (36 / (37 - r)),
             epley: (w, r) => w * (1 + r / 30),
@@ -445,32 +460,24 @@
             wathan: (w, r) => w * (100 / (48.8 + 53.8 * Math.exp(-0.075 * r)))
         };
 
-        // Formule Inverse (Calcolo delle Reps dato 1RM e Carico)
-        // M = Massimale Totale, W = Peso Corporeo
         const reverseFormulas = {
             brzycki: (M, W) => 37 - (36 * W / M),
             epley: (M, W) => 30 * ((M / W) - 1),
             lander: (M, W) => (101.3 - (100 * W / M)) / 2.67123,
             lombardi: (M, W) => Math.pow(M / W, 10),
-            mayhew: (M, W) => {
-                const val = ((100 * W / M) - 52.2) / 41.9;
-                return val > 0 ? Math.log(val) / -0.055 : null;
-            },
+            mayhew: (M, W) => { const val = ((100 * W / M) - 52.2) / 41.9; return val > 0 ? Math.log(val) / -0.055 : null; },
             oconner: (M, W) => ((M / W) - 1) / 0.025,
-            wathan: (M, W) => {
-                const val = ((100 * W / M) - 48.8) / 53.8;
-                return val > 0 ? Math.log(val) / -0.075 : null;
-            }
+            wathan: (M, W) => { const val = ((100 * W / M) - 48.8) / 53.8; return val > 0 ? Math.log(val) / -0.075 : null; }
         };
 
         const formulaDetails = {
-            brzycki: { name: 'Brzycki', desc: 'Accurata per 2-10 ripetizioni. Molto usata nel powerlifting e calisthenics.' },
+            brzycki: { name: 'Brzycki', desc: 'Accurata per 2-10 ripetizioni. Molto usata.' },
             epley: { name: 'Epley', desc: 'Ottima per un range vario di ripetizioni.' },
             lander: { name: 'Lander', desc: 'Buona per ripetizioni moderate e carichi pesanti.' },
-            lombardi: { name: 'Lombardi', desc: 'Formula conservativa, tende a sottostimare leggermente il massimale.' },
-            mayhew: { name: 'Mayhew', desc: 'Basata su studi atletici avanzati, molto precisa per alte intensità.' },
+            lombardi: { name: 'Lombardi', desc: 'Conservativa, tende a sottostimare leggermente.' },
+            mayhew: { name: 'Mayhew', desc: 'Molto precisa per alte intensità e atleti esperti.' },
             oconner: { name: 'O\'Conner', desc: 'Formula semplice, lineare e conservativa.' },
-            wathan: { name: 'Wathan', desc: 'Considerata tra le più precise matematicamente su vari range di ripetizioni.' }
+            wathan: { name: 'Wathan', desc: 'Matematicamente precisa su vari range di ripetizioni.' }
         };
 
         function setMode(mode) {
@@ -480,24 +487,25 @@
             document.getElementById('btn-pullup').classList.remove('active');
             document.getElementById(`btn-${mode}`).classList.add('active');
 
-            const bwGroup = document.getElementById('bw-group');
+            const pullupOptions = document.getElementById('pullup-options');
             const weightLabel = document.getElementById('weight-label');
             const maxTitle = document.getElementById('max-title');
             const comparisonTitle = document.getElementById('comparison-title');
             const bwRepsContainer = document.getElementById('bwRepsContainer');
+            const strengthLvl = document.getElementById('strengthLevel');
 
             if (mode === 'pullup') {
-                bwGroup.style.display = 'flex';
+                pullupOptions.style.display = 'block';
                 weightLabel.textContent = 'Zavorra (kg)';
                 maxTitle.textContent = '1RM Zavorra (Max Extra)';
                 comparisonTitle.textContent = 'Confronto Formule (Zavorra)';
-                // Il box delle reps libere verrà gestito dentro calculateRM()
             } else {
-                bwGroup.style.display = 'none';
+                pullupOptions.style.display = 'none';
                 weightLabel.textContent = 'Carico (kg)';
                 maxTitle.textContent = 'Il tuo 1RM (Massimale)';
                 comparisonTitle.textContent = 'Confronto Formule 1RM';
                 bwRepsContainer.style.display = 'none';
+                strengthLvl.classList.remove('show');
             }
 
             handleInputChange();
@@ -508,22 +516,50 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
-            
             container.appendChild(toast);
-            
             void toast.offsetWidth;
             toast.classList.add('show');
-            
             setTimeout(() => {
                 toast.classList.remove('show');
                 toast.addEventListener('transitionend', () => toast.remove(), { once: true });
             }, 3000);
         }
 
+        // Funzione per valutare il livello di forza
+        function evalStrength(total1RM, bw, gender, ageStr) {
+            if (!gender) return null; // Se non c'è il sesso, niente valutazione
+            
+            const ratio = total1RM / bw;
+            const age = parseInt(ageStr) || 25; // Default 25 anni se non inserita
+
+            // Modificatore Età (declino fisiologico)
+            let ageMod = 1.0;
+            if (age >= 40 && age < 50) ageMod = 0.93;
+            else if (age >= 50 && age < 60) ageMod = 0.85;
+            else if (age >= 60) ageMod = 0.75;
+
+            // Rapporti Standard (Total Weight / Bodyweight) per Uomo e Donna
+            // Soglie: [Novizio, Intermedio, Avanzato, Elite]
+            const standards = {
+                male: [1.10, 1.40, 1.70, 2.00],
+                female: [0.95, 1.20, 1.45, 1.70]
+            };
+
+            const thresholds = standards[gender].map(val => val * ageMod);
+
+            if (ratio < thresholds[0]) return { text: "Principiante", class: "lvl-principiante" };
+            if (ratio < thresholds[1]) return { text: "Novizio", class: "lvl-novizio" };
+            if (ratio < thresholds[2]) return { text: "Intermedio", class: "lvl-intermedio" };
+            if (ratio < thresholds[3]) return { text: "Avanzato", class: "lvl-avanzato" };
+            return { text: "Elite", class: "lvl-elite" };
+        }
+
         function calculateRM() {
             const weightInput = parseFloat(document.getElementById('weight').value);
             const reps = parseInt(document.getElementById('reps').value);
             const bwInput = parseFloat(document.getElementById('bodyweight').value) || 0;
+            const genderInput = document.getElementById('gender').value;
+            const ageInput = document.getElementById('age').value;
             const selectedFormulaKey = document.getElementById('formula').value;
             
             if (isNaN(weightInput) || isNaN(reps) || reps <= 0) {
@@ -532,7 +568,7 @@
             }
 
             if (currentMode === 'pullup' && (isNaN(bwInput) || bwInput <= 0)) {
-                showToast('Inserisci il tuo peso corporeo per le trazioni.');
+                showToast('Inserisci il tuo peso corporeo obbligatorio.');
                 return;
             }
             
@@ -550,41 +586,48 @@
                 return;
             }
 
-            // Output UI principale
             const maxValueEl = document.getElementById('maxValue');
             const maxSubtextEl = document.getElementById('maxSubtext');
             const bwRepsContainer = document.getElementById('bwRepsContainer');
             const bwRepsValueEl = document.getElementById('bwRepsValue');
+            const strengthLvl = document.getElementById('strengthLevel');
 
             if (currentMode === 'pullup') {
                 const added1RM = totalOneRM - bwInput;
                 const displayMax = added1RM > 0 ? added1RM : 0;
                 
                 maxValueEl.textContent = `+${displayMax.toFixed(1)} kg`;
-                maxSubtextEl.innerHTML = `Peso Totale: <b>${totalOneRM.toFixed(1)} kg</b>`;
+                maxSubtextEl.innerHTML = `Peso Totale Spostato: <b>${totalOneRM.toFixed(1)} kg</b>`;
                 
-                // CALCOLO RIPETIZIONI A CORPO LIBERO
+                // REPS A CORPO LIBERO
                 let estReps = reverseFormulas[selectedFormulaKey](totalOneRM, bwInput);
-                
-                // Fallback se le equazioni logaritmiche (Mayhew/Wathan) falliscono a causa di matematiche estreme
                 if (estReps === null || isNaN(estReps)) {
                     estReps = reverseFormulas['epley'](totalOneRM, bwInput); 
                 }
-
-                estReps = Math.max(0, Math.round(estReps)); // Arrotonda e impedisce numeri negativi
+                estReps = Math.max(0, Math.round(estReps));
                 bwRepsValueEl.textContent = `~ ${estReps}`;
                 bwRepsContainer.style.display = 'block';
+
+                // LIVELLO DI FORZA
+                const levelData = evalStrength(totalOneRM, bwInput, genderInput, ageInput);
+                if (levelData) {
+                    strengthLvl.className = `strength-level show ${levelData.class}`;
+                    document.getElementById('strengthText').textContent = levelData.text;
+                } else {
+                    strengthLvl.classList.remove('show');
+                }
 
             } else {
                 maxValueEl.textContent = `${totalOneRM.toFixed(1)} kg`;
                 maxSubtextEl.innerHTML = '';
                 bwRepsContainer.style.display = 'none';
+                strengthLvl.classList.remove('show');
             }
             
             document.getElementById('formulaTitle').textContent = `Formula: ${formulaDetails[selectedFormulaKey].name}`;
             document.getElementById('formulaDescription').innerHTML = formulaDetails[selectedFormulaKey].desc;
             
-            // Popola Griglia RM
+            // Griglia RM
             const rmGrid = document.getElementById('rmGrid');
             rmGrid.innerHTML = '';
             const percentages = { 2: 0.95, 3: 0.93, 4: 0.90, 5: 0.87, 6: 0.85, 7: 0.83, 8: 0.80, 9: 0.77, 10: 0.75, 11: 0.73, 12: 0.70 };
@@ -603,7 +646,6 @@
 
                 const rmItem = document.createElement('div');
                 rmItem.className = 'rm-item';
-                
                 let weightText = isAssisted 
                     ? `${displayWeight.toFixed(1)} kg <span class="rm-assisted">(Con Elastico)</span>`
                     : `${displayWeight > 0 && currentMode === 'pullup' ? '+' : ''}${displayWeight.toFixed(1)} kg`;
@@ -612,7 +654,7 @@
                 rmGrid.appendChild(rmItem);
             }
 
-            // Popola Lista Confronto
+            // Confronto Formule
             const comparisonList = document.getElementById('comparisonList');
             comparisonList.innerHTML = '';
             const comparisonResults = [];
@@ -620,7 +662,6 @@
             for (const key in formulas) {
                 let calcTotalRM = formulas[key](totalWeightMoved, reps);
                 let finalValue = currentMode === 'pullup' ? calcTotalRM - bwInput : calcTotalRM;
-                
                 if (isFinite(finalValue)) {
                     comparisonResults.push({ name: formulaDetails[key].name, value: finalValue });
                 }
@@ -637,9 +678,7 @@
             const resultsDiv = document.getElementById('results');
             if (!resultsDiv.classList.contains('show')) {
                 resultsDiv.classList.add('show');
-                setTimeout(() => {
-                    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 100);
+                setTimeout(() => { resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             }
         }
         
@@ -658,6 +697,8 @@
         document.getElementById('weight').addEventListener('input', handleInputChange);
         document.getElementById('reps').addEventListener('input', handleInputChange);
         document.getElementById('bodyweight').addEventListener('input', handleInputChange);
+        document.getElementById('gender').addEventListener('change', handleInputChange);
+        document.getElementById('age').addEventListener('input', handleInputChange);
         document.getElementById('formula').addEventListener('change', handleInputChange);
         
         document.addEventListener('keypress', (event) => {
