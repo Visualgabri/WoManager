@@ -44,7 +44,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        /* Selettore Modalità (Segmented Control) */
+        /* Selettore Modalità */
         .mode-selector {
             display: flex;
             background: #e2e8f0;
@@ -85,7 +85,6 @@
             flex-direction: column;
         }
 
-        /* Animazione per apparizione fluida del peso corporeo */
         #bw-group {
             display: none;
             animation: fadeIn 0.4s ease;
@@ -166,19 +165,35 @@
             display: block;
         }
 
+        /* Container per 1RM e Reps a vuoto */
+        .primary-results-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
         .max-result {
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
             color: white;
             padding: 20px;
             border-radius: 16px;
             text-align: center;
-            margin-bottom: 20px;
             box-shadow: 0 10px 20px rgba(255, 107, 107, 0.25);
         }
 
-        .max-result h2 {
-            font-size: 1.3em;
-            margin-bottom: 10px;
+        .bw-reps-result {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.25);
+            display: none; /* Mostrato solo nelle trazioni */
+        }
+
+        .max-result h2, .bw-reps-result h3 {
+            font-size: 1.2em;
+            margin-bottom: 8px;
             font-weight: 600;
         }
 
@@ -187,6 +202,12 @@
             font-weight: 800;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             line-height: 1.1;
+        }
+
+        .bw-reps-result .bw-reps-value {
+            font-size: 2.2em;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .max-subtext {
@@ -321,7 +342,6 @@
             transform: translateY(0);
         }
 
-        /* Ottimizzazioni per schermi molto piccoli */
         @media (max-width: 400px) {
             .rm-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -375,10 +395,20 @@
         </button>
         
         <div class="results" id="results">
-            <div class="max-result">
-                <h2 id="max-title">Il tuo 1RM (Massimale)</h2>
-                <div class="max-value" id="maxValue">0 kg</div>
-                <div class="max-subtext" id="maxSubtext"></div>
+            
+            <div class="primary-results-grid">
+                <div class="max-result">
+                    <h2 id="max-title">Il tuo 1RM (Massimale)</h2>
+                    <div class="max-value" id="maxValue">0 kg</div>
+                    <div class="max-subtext" id="maxSubtext"></div>
+                </div>
+                
+                <!-- Nuovo riquadro per le reps a corpo libero -->
+                <div class="bw-reps-result" id="bwRepsContainer">
+                    <h3>Stima Reps Corpo Libero</h3>
+                    <div class="bw-reps-value" id="bwRepsValue">0</div>
+                    <div class="max-subtext">Senza zavorra</div>
+                </div>
             </div>
             
             <div class="rm-grid" id="rmGrid">
@@ -404,6 +434,7 @@
     <script>
         let currentMode = 'standard';
 
+        // Formule dirette (Calcolo del 1RM dato Carico e Reps)
         const formulas = {
             brzycki: (w, r) => w * (36 / (37 - r)),
             epley: (w, r) => w * (1 + r / 30),
@@ -412,6 +443,24 @@
             mayhew: (w, r) => w * (100 / (52.2 + 41.9 * Math.exp(-0.055 * r))),
             oconner: (w, r) => w * (1 + 0.025 * r),
             wathan: (w, r) => w * (100 / (48.8 + 53.8 * Math.exp(-0.075 * r)))
+        };
+
+        // Formule Inverse (Calcolo delle Reps dato 1RM e Carico)
+        // M = Massimale Totale, W = Peso Corporeo
+        const reverseFormulas = {
+            brzycki: (M, W) => 37 - (36 * W / M),
+            epley: (M, W) => 30 * ((M / W) - 1),
+            lander: (M, W) => (101.3 - (100 * W / M)) / 2.67123,
+            lombardi: (M, W) => Math.pow(M / W, 10),
+            mayhew: (M, W) => {
+                const val = ((100 * W / M) - 52.2) / 41.9;
+                return val > 0 ? Math.log(val) / -0.055 : null;
+            },
+            oconner: (M, W) => ((M / W) - 1) / 0.025,
+            wathan: (M, W) => {
+                const val = ((100 * W / M) - 48.8) / 53.8;
+                return val > 0 ? Math.log(val) / -0.075 : null;
+            }
         };
 
         const formulaDetails = {
@@ -427,30 +476,30 @@
         function setMode(mode) {
             currentMode = mode;
             
-            // Aggiorna UI Bottoni
             document.getElementById('btn-standard').classList.remove('active');
             document.getElementById('btn-pullup').classList.remove('active');
             document.getElementById(`btn-${mode}`).classList.add('active');
 
-            // Aggiorna UI Input
             const bwGroup = document.getElementById('bw-group');
             const weightLabel = document.getElementById('weight-label');
             const maxTitle = document.getElementById('max-title');
             const comparisonTitle = document.getElementById('comparison-title');
+            const bwRepsContainer = document.getElementById('bwRepsContainer');
 
             if (mode === 'pullup') {
                 bwGroup.style.display = 'flex';
-                weightLabel.textContent = 'Zavorra Aggiuntiva (kg)';
+                weightLabel.textContent = 'Zavorra (kg)';
                 maxTitle.textContent = '1RM Zavorra (Max Extra)';
                 comparisonTitle.textContent = 'Confronto Formule (Zavorra)';
+                // Il box delle reps libere verrà gestito dentro calculateRM()
             } else {
                 bwGroup.style.display = 'none';
                 weightLabel.textContent = 'Carico (kg)';
                 maxTitle.textContent = 'Il tuo 1RM (Massimale)';
                 comparisonTitle.textContent = 'Confronto Formule 1RM';
+                bwRepsContainer.style.display = 'none';
             }
 
-            // Ricalcola se ci sono già dati inseriti
             handleInputChange();
         }
 
@@ -462,7 +511,6 @@
             
             container.appendChild(toast);
             
-            // Trigger reflow per animazione CSS
             void toast.offsetWidth;
             toast.classList.add('show');
             
@@ -488,16 +536,13 @@
                 return;
             }
             
-            if (reps > 20) showToast('Il calcolo è meno preciso oltre le 20 rep.');
             if (reps >= 37 && selectedFormulaKey === 'brzycki') {
                  showToast('Brzycki non è valida per 37+ rep.');
                  return;
             }
 
-            // Calcolo Peso Totale Sollevato
+            // Calcolo base
             const totalWeightMoved = currentMode === 'pullup' ? weightInput + bwInput : weightInput;
-
-            // Calcola il 1RM TOTALE con la formula
             const totalOneRM = formulas[selectedFormulaKey](totalWeightMoved, reps);
             
             if (!isFinite(totalOneRM) || totalOneRM < 0) {
@@ -505,22 +550,37 @@
                 return;
             }
 
-            // Gestione Output Visuale (Massimale)
+            // Output UI principale
             const maxValueEl = document.getElementById('maxValue');
             const maxSubtextEl = document.getElementById('maxSubtext');
+            const bwRepsContainer = document.getElementById('bwRepsContainer');
+            const bwRepsValueEl = document.getElementById('bwRepsValue');
 
             if (currentMode === 'pullup') {
                 const added1RM = totalOneRM - bwInput;
                 const displayMax = added1RM > 0 ? added1RM : 0;
                 
                 maxValueEl.textContent = `+${displayMax.toFixed(1)} kg`;
-                maxSubtextEl.innerHTML = `Peso Totale Spostato: <b>${totalOneRM.toFixed(1)} kg</b>`;
+                maxSubtextEl.innerHTML = `Peso Totale: <b>${totalOneRM.toFixed(1)} kg</b>`;
+                
+                // CALCOLO RIPETIZIONI A CORPO LIBERO
+                let estReps = reverseFormulas[selectedFormulaKey](totalOneRM, bwInput);
+                
+                // Fallback se le equazioni logaritmiche (Mayhew/Wathan) falliscono a causa di matematiche estreme
+                if (estReps === null || isNaN(estReps)) {
+                    estReps = reverseFormulas['epley'](totalOneRM, bwInput); 
+                }
+
+                estReps = Math.max(0, Math.round(estReps)); // Arrotonda e impedisce numeri negativi
+                bwRepsValueEl.textContent = `~ ${estReps}`;
+                bwRepsContainer.style.display = 'block';
+
             } else {
                 maxValueEl.textContent = `${totalOneRM.toFixed(1)} kg`;
                 maxSubtextEl.innerHTML = '';
+                bwRepsContainer.style.display = 'none';
             }
             
-            // Update info formula
             document.getElementById('formulaTitle').textContent = `Formula: ${formulaDetails[selectedFormulaKey].name}`;
             document.getElementById('formulaDescription').innerHTML = formulaDetails[selectedFormulaKey].desc;
             
@@ -536,9 +596,7 @@
 
                 if (currentMode === 'pullup') {
                     displayWeight = totalRmWeight - bwInput;
-                    if (displayWeight < 0) {
-                        isAssisted = true; // Se il peso calcolato è negativo, serve un elastico
-                    }
+                    if (displayWeight < 0) isAssisted = true;
                 } else {
                     displayWeight = totalRmWeight;
                 }
@@ -576,7 +634,6 @@
                 comparisonList.appendChild(li);
             });
             
-            // Mostra i risultati con scorrimento fluido
             const resultsDiv = document.getElementById('results');
             if (!resultsDiv.classList.contains('show')) {
                 resultsDiv.classList.add('show');
@@ -586,7 +643,6 @@
             }
         }
         
-        // Calcolo automatico mentre si digita
         let calculationTimeout;
         function handleInputChange() {
             clearTimeout(calculationTimeout);
@@ -599,23 +655,19 @@
             }
         }
 
-        // Event Listeners
         document.getElementById('weight').addEventListener('input', handleInputChange);
         document.getElementById('reps').addEventListener('input', handleInputChange);
         document.getElementById('bodyweight').addEventListener('input', handleInputChange);
         document.getElementById('formula').addEventListener('change', handleInputChange);
         
-        // Evitare il refresh premendo invio
         document.addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 calculateRM();
-                // Chiudi la tastiera su smartphone
                 document.activeElement.blur();
             }
         });
 
-        // Setup iniziale
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('formulaTitle').textContent = `Formula: ${formulaDetails['brzycki'].name}`;
             document.getElementById('formulaDescription').innerHTML = formulaDetails['brzycki'].desc;
