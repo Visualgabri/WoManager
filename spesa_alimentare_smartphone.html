@@ -6,282 +6,133 @@
   <meta name="theme-color" content="#111827" />
   <title>Spesa Alimentare</title>
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root{
+      --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280;
+      --border:#e5e7eb; --green:#16a34a; --green-light:#dcfce7;
+      --red:#dc2626; --red-light:#fee2e2; --blue:#2563eb;
+    }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    .app{
+      width:100%; max-width:520px; margin:0 auto; min-height:100vh;
+      padding:16px 14px calc(28px + env(safe-area-inset-bottom));
+    }
+    h1{ margin:4px 0 16px; font-size:24px; line-height:1.2; }
+    .budget-card{
+      background:#111827; color:#fff; border-radius:18px;
+      padding:18px; margin-bottom:14px;
+    }
+    .label{
+      font-size:12px; text-transform:uppercase; letter-spacing:.06em;
+      opacity:.75; margin-bottom:6px; font-weight:700;
+    }
+    .budget-input-wrap{ display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+    .budget-input-wrap span{ font-size:28px; font-weight:800; }
+    #budget{
+      width:100%; border:0; outline:none; background:transparent; color:#fff;
+      font-size:34px; font-weight:800; padding:0; min-width:0;
+    }
+    .summary{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .summary-box{
+      border-radius:14px; padding:12px; background:rgba(255,255,255,.08);
+    }
+    .summary-box small{ display:block; opacity:.7; margin-bottom:4px; }
+    .summary-box strong{ display:block; font-size:21px; }
+    .remaining-positive{ color:#86efac; }
+    .remaining-negative{ color:#fca5a5; }
+    .status{ margin-top:10px; font-size:13px; font-weight:700; }
+    .over{ color:#fecaca; }
+
+    .group-actions{
+      display:flex; gap:8px; margin-bottom:12px;
+    }
+    .group-actions input{
+      flex:1; min-width:0; height:44px; border:1px solid var(--border);
+      border-radius:12px; padding:0 12px; font-size:16px; outline:none; background:#fff;
+    }
+    .group-actions input:focus{ border-color:var(--blue); }
+    .group-actions button{
+      height:44px; border:0; border-radius:12px; padding:0 14px;
+      background:#111827; color:#fff; font-weight:800; cursor:pointer;
     }
 
-    :root {
-      --bg: #f3f4f6;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --green: #16a34a;
-      --green-light: #dcfce7;
-      --red: #dc2626;
-      --red-light: #fee2e2;
-      --blue: #2563eb;
+    .group{
+      background:var(--card); border:1px solid var(--border);
+      border-radius:18px; overflow:hidden; margin-bottom:12px;
     }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    .group-header{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px; background:#f9fafb; border-bottom:1px solid var(--border);
     }
-
-    .app {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 16px 14px calc(28px + env(safe-area-inset-bottom));
+    .group-title-wrap{ min-width:0; flex:1; }
+    .group-title{
+      width:100%; border:0; background:transparent; outline:none;
+      font-size:17px; font-weight:800; color:var(--text); padding:2px 0;
     }
-
-    h1 {
-      margin: 4px 0 16px;
-      font-size: 24px;
-      line-height: 1.2;
+    .group-subtotal{
+      font-size:14px; color:var(--muted); font-weight:700; white-space:nowrap;
     }
-
-    .budget-card {
-      background: #111827;
-      color: white;
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 14px;
+    .remove-group{
+      width:38px; height:38px; border:0; border-radius:10px;
+      background:var(--red-light); color:var(--red); font-size:20px; cursor:pointer;
     }
-
-    .label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      opacity: .75;
-      margin-bottom: 6px;
-      font-weight: 700;
+    .table-head,.row,.add-row{
+      display:grid; grid-template-columns:minmax(0,1fr) 105px 46px;
+      align-items:center; gap:8px;
     }
-
-    .budget-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 18px;
+    .table-head{
+      padding:9px 10px; font-size:11px; font-weight:800;
+      color:var(--muted); border-bottom:1px solid var(--border);
     }
-
-    .budget-input-wrap span {
-      font-size: 28px;
-      font-weight: 800;
+    .row{ padding:9px 10px; border-bottom:1px solid var(--border); }
+    .row input,.add-row input{
+      width:100%; min-width:0; height:42px; border:1px solid var(--border);
+      border-radius:10px; background:#fff; font-size:16px;
+      padding:0 10px; outline:none;
     }
-
-    #budget {
-      width: 100%;
-      border: 0;
-      outline: none;
-      background: transparent;
-      color: white;
-      font-size: 34px;
-      font-weight: 800;
-      padding: 0;
-      min-width: 0;
+    .row input:focus,.add-row input:focus{ border-color:var(--blue); }
+    .delete-btn{
+      width:42px; height:42px; border:0; border-radius:10px;
+      background:var(--red-light); color:var(--red); font-size:22px; font-weight:700;
     }
-
-    .summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    .add-row{ padding:10px; }
+    .add-btn{
+      width:44px; height:44px; border:0; border-radius:10px;
+      background:var(--green); color:#fff; font-size:25px; font-weight:700;
     }
-
-    .summary-box {
-      border-radius: 14px;
-      padding: 12px;
-      background: rgba(255,255,255,.08);
+    .empty{
+      padding:16px; text-align:center; color:var(--muted); font-size:14px;
+      border-bottom:1px solid var(--border);
     }
-
-    .summary-box small {
-      display: block;
-      opacity: .7;
-      margin-bottom: 4px;
+    .footer-actions{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:12px; margin-top:12px;
     }
-
-    .summary-box strong {
-      display: block;
-      font-size: 21px;
+    .count{ color:var(--muted); font-size:14px; }
+    .reset-btn{
+      border:1px solid var(--border); background:#fff; color:var(--text);
+      border-radius:10px; min-height:42px; padding:0 14px; font-weight:700;
     }
-
-    .remaining-positive {
-      color: #86efac;
-    }
-
-    .remaining-negative {
-      color: #fca5a5;
-    }
-
-    .table-card {
-      background: var(--card);
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .table-head,
-    .row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 105px 46px;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .table-head {
-      background: #f9fafb;
-      padding: 10px 12px;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .row {
-      padding: 9px 10px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .row:last-child {
-      border-bottom: 0;
-    }
-
-    .row input {
-      width: 100%;
-      min-width: 0;
-      height: 42px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: white;
-      font-size: 16px;
-      padding: 0 10px;
-      outline: none;
-    }
-
-    .row input:focus,
-    .add-row input:focus,
-    #budget:focus {
-      border-color: var(--blue);
-    }
-
-    .delete-btn {
-      width: 42px;
-      height: 42px;
-      border: 0;
-      border-radius: 10px;
-      background: var(--red-light);
-      color: var(--red);
-      font-size: 22px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .add-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 105px 46px;
-      gap: 8px;
-      padding: 10px;
-      background: white;
-    }
-
-    .add-row input {
-      width: 100%;
-      min-width: 0;
-      height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 16px;
-      padding: 0 10px;
-      outline: none;
-    }
-
-    .add-btn {
-      width: 44px;
-      height: 44px;
-      border: 0;
-      border-radius: 10px;
-      background: var(--green);
-      color: white;
-      font-size: 25px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .count {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .reset-btn {
-      border: 1px solid var(--border);
-      background: white;
-      color: var(--text);
-      border-radius: 10px;
-      min-height: 42px;
-      padding: 0 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .status {
-      margin-top: 10px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .over {
-      color: #fecaca;
-    }
-
-    @media (max-width: 360px) {
-      .app {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      .table-head,
-      .row,
-      .add-row {
-        grid-template-columns: minmax(0, 1fr) 88px 42px;
-      }
-
-      #budget {
-        font-size: 30px;
-      }
+    @media(max-width:360px){
+      .app{ padding-left:10px; padding-right:10px; }
+      .table-head,.row,.add-row{ grid-template-columns:minmax(0,1fr) 88px 42px; }
+      #budget{ font-size:30px; }
+      .group-header{ align-items:flex-start; }
     }
   </style>
 </head>
-
 <body>
   <main class="app">
     <h1>Spesa alimentare</h1>
 
     <section class="budget-card">
       <div class="label">Budget totale</div>
-
       <div class="budget-input-wrap">
         <span>€</span>
-        <input
-          id="budget"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.01"
-          value="100"
-          aria-label="Budget totale"
-        />
+        <input id="budget" type="number" inputmode="decimal" min="0" step="0.01" value="100" aria-label="Budget totale" />
       </div>
 
       <div class="summary">
@@ -289,7 +140,6 @@
           <small>Speso</small>
           <strong id="spent">€ 0,00</strong>
         </div>
-
         <div class="summary-box">
           <small>Rimane</small>
           <strong id="remaining" class="remaining-positive">€ 100,00</strong>
@@ -299,42 +149,16 @@
       <div id="status" class="status">Budget disponibile</div>
     </section>
 
-    <section class="table-card">
-      <div class="table-head">
-        <div>ALIMENTO</div>
-        <div>PREZZO</div>
-        <div></div>
-      </div>
-
-      <div id="rows"></div>
-
-      <form id="addForm" class="add-row">
-        <input
-          id="food"
-          type="text"
-          maxlength="60"
-          placeholder="Es. Riso"
-          autocomplete="off"
-          aria-label="Nome alimento"
-        />
-
-        <input
-          id="price"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.01"
-          placeholder="0,00"
-          aria-label="Prezzo"
-        />
-
-        <button class="add-btn" type="submit" aria-label="Aggiungi alimento">+</button>
-      </form>
+    <section class="group-actions">
+      <input id="newGroupName" type="text" maxlength="40" placeholder="Nuovo sottogruppo..." />
+      <button id="addGroupBtn" type="button">+ Gruppo</button>
     </section>
+
+    <div id="groups"></div>
 
     <div class="footer-actions">
       <div id="count" class="count">0 prodotti</div>
-      <button id="resetBtn" class="reset-btn" type="button">Svuota</button>
+      <button id="resetBtn" class="reset-btn" type="button">Svuota tutto</button>
     </div>
   </main>
 
@@ -343,42 +167,49 @@
     const spentEl = document.getElementById("spent");
     const remainingEl = document.getElementById("remaining");
     const statusEl = document.getElementById("status");
-    const rowsEl = document.getElementById("rows");
-    const addForm = document.getElementById("addForm");
-    const foodInput = document.getElementById("food");
-    const priceInput = document.getElementById("price");
+    const groupsEl = document.getElementById("groups");
+    const newGroupName = document.getElementById("newGroupName");
+    const addGroupBtn = document.getElementById("addGroupBtn");
     const countEl = document.getElementById("count");
     const resetBtn = document.getElementById("resetBtn");
 
-    let items = [];
+    let groups = [
+      { id: Date.now(), name: "Generale", items: [] }
+    ];
 
-    function toNumber(value) {
+    function toNumber(value){
       const n = parseFloat(String(value).replace(",", "."));
       return Number.isFinite(n) && n >= 0 ? n : 0;
     }
 
-    function euro(value) {
+    function euro(value){
       return new Intl.NumberFormat("it-IT", {
-        style: "currency",
-        currency: "EUR"
+        style:"currency",
+        currency:"EUR"
       }).format(value);
     }
 
-    function updateTotals() {
+    function totalSpent(){
+      return groups.reduce((sum, group) =>
+        sum + group.items.reduce((s, item) => s + toNumber(item.price), 0), 0
+      );
+    }
+
+    function updateTotals(){
       const budget = toNumber(budgetInput.value);
-      const spent = items.reduce((sum, item) => sum + toNumber(item.price), 0);
+      const spent = totalSpent();
       const remaining = budget - spent;
+      const itemCount = groups.reduce((n, g) => n + g.items.length, 0);
 
       spentEl.textContent = euro(spent);
       remainingEl.textContent = euro(remaining);
-
       remainingEl.classList.toggle("remaining-positive", remaining >= 0);
       remainingEl.classList.toggle("remaining-negative", remaining < 0);
 
-      if (remaining < 0) {
+      if(remaining < 0){
         statusEl.textContent = "Budget superato di " + euro(Math.abs(remaining));
         statusEl.classList.add("over");
-      } else if (budget > 0 && remaining <= budget * 0.15) {
+      } else if(budget > 0 && remaining <= budget * 0.15){
         statusEl.textContent = "Budget quasi esaurito";
         statusEl.classList.remove("over");
       } else {
@@ -386,88 +217,196 @@
         statusEl.classList.remove("over");
       }
 
-      countEl.textContent =
-        items.length + (items.length === 1 ? " prodotto" : " prodotti");
+      countEl.textContent = itemCount + (itemCount === 1 ? " prodotto" : " prodotti");
     }
 
-    function renderRows() {
-      rowsEl.innerHTML = "";
+    function groupSubtotal(group){
+      return group.items.reduce((sum, item) => sum + toNumber(item.price), 0);
+    }
 
-      items.forEach((item, index) => {
-        const row = document.createElement("div");
-        row.className = "row";
+    function render(){
+      groupsEl.innerHTML = "";
 
-        const nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.value = item.name;
-        nameInput.setAttribute("aria-label", "Nome alimento");
-        nameInput.addEventListener("input", () => {
-          items[index].name = nameInput.value;
+      groups.forEach((group, groupIndex) => {
+        const section = document.createElement("section");
+        section.className = "group";
+
+        const header = document.createElement("div");
+        header.className = "group-header";
+
+        const titleWrap = document.createElement("div");
+        titleWrap.className = "group-title-wrap";
+
+        const titleInput = document.createElement("input");
+        titleInput.className = "group-title";
+        titleInput.value = group.name;
+        titleInput.maxLength = 40;
+        titleInput.setAttribute("aria-label", "Nome sottogruppo");
+        titleInput.addEventListener("input", () => {
+          group.name = titleInput.value;
         });
 
-        const priceInputRow = document.createElement("input");
-        priceInputRow.type = "number";
-        priceInputRow.inputMode = "decimal";
-        priceInputRow.min = "0";
-        priceInputRow.step = "0.01";
-        priceInputRow.value = item.price;
-        priceInputRow.setAttribute("aria-label", "Prezzo alimento");
-        priceInputRow.addEventListener("input", () => {
-          items[index].price = toNumber(priceInputRow.value);
-          updateTotals();
+        const subtotal = document.createElement("div");
+        subtotal.className = "group-subtotal";
+        subtotal.textContent = euro(groupSubtotal(group));
+
+        titleWrap.appendChild(titleInput);
+
+        const removeGroupBtn = document.createElement("button");
+        removeGroupBtn.type = "button";
+        removeGroupBtn.className = "remove-group";
+        removeGroupBtn.textContent = "×";
+        removeGroupBtn.setAttribute("aria-label", "Elimina sottogruppo");
+        removeGroupBtn.addEventListener("click", () => {
+          groups.splice(groupIndex, 1);
+          if(groups.length === 0){
+            groups.push({ id: Date.now(), name: "Generale", items: [] });
+          }
+          render();
         });
 
-        const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.textContent = "×";
-        deleteBtn.setAttribute("aria-label", "Elimina alimento");
-        deleteBtn.addEventListener("click", () => {
-          items.splice(index, 1);
-          renderRows();
+        header.appendChild(titleWrap);
+        header.appendChild(subtotal);
+        header.appendChild(removeGroupBtn);
+
+        const head = document.createElement("div");
+        head.className = "table-head";
+        head.innerHTML = "<div>ALIMENTO</div><div>PREZZO</div><div></div>";
+
+        section.appendChild(header);
+        section.appendChild(head);
+
+        if(group.items.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "Nessun alimento in questo gruppo";
+          section.appendChild(empty);
+        }
+
+        group.items.forEach((item, itemIndex) => {
+          const row = document.createElement("div");
+          row.className = "row";
+
+          const nameInput = document.createElement("input");
+          nameInput.type = "text";
+          nameInput.value = item.name;
+          nameInput.maxLength = 60;
+          nameInput.setAttribute("aria-label", "Nome alimento");
+          nameInput.addEventListener("input", () => {
+            item.name = nameInput.value;
+          });
+
+          const priceInput = document.createElement("input");
+          priceInput.type = "number";
+          priceInput.inputMode = "decimal";
+          priceInput.min = "0";
+          priceInput.step = "0.01";
+          priceInput.value = item.price;
+          priceInput.setAttribute("aria-label", "Prezzo alimento");
+          priceInput.addEventListener("input", () => {
+            item.price = toNumber(priceInput.value);
+            subtotal.textContent = euro(groupSubtotal(group));
+            updateTotals();
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "delete-btn";
+          deleteBtn.textContent = "×";
+          deleteBtn.setAttribute("aria-label", "Elimina alimento");
+          deleteBtn.addEventListener("click", () => {
+            group.items.splice(itemIndex, 1);
+            render();
+          });
+
+          row.appendChild(nameInput);
+          row.appendChild(priceInput);
+          row.appendChild(deleteBtn);
+          section.appendChild(row);
         });
 
-        row.appendChild(nameInput);
-        row.appendChild(priceInputRow);
-        row.appendChild(deleteBtn);
+        const addForm = document.createElement("form");
+        addForm.className = "add-row";
 
-        rowsEl.appendChild(row);
+        const foodInput = document.createElement("input");
+        foodInput.type = "text";
+        foodInput.maxLength = 60;
+        foodInput.placeholder = "Es. Riso";
+        foodInput.autocomplete = "off";
+        foodInput.setAttribute("aria-label", "Nuovo alimento");
+
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.inputMode = "decimal";
+        priceInput.min = "0";
+        priceInput.step = "0.01";
+        priceInput.placeholder = "0,00";
+        priceInput.setAttribute("aria-label", "Prezzo");
+
+        const addBtn = document.createElement("button");
+        addBtn.type = "submit";
+        addBtn.className = "add-btn";
+        addBtn.textContent = "+";
+        addBtn.setAttribute("aria-label", "Aggiungi alimento");
+
+        addForm.appendChild(foodInput);
+        addForm.appendChild(priceInput);
+        addForm.appendChild(addBtn);
+
+        addForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const name = foodInput.value.trim();
+          const price = toNumber(priceInput.value);
+
+          if(!name){
+            foodInput.focus();
+            return;
+          }
+
+          group.items.push({ name, price });
+          render();
+        });
+
+        section.appendChild(addForm);
+        groupsEl.appendChild(section);
       });
 
       updateTotals();
     }
 
-    addForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const name = foodInput.value.trim();
-      const price = toNumber(priceInput.value);
-
-      if (!name) {
-        foodInput.focus();
+    addGroupBtn.addEventListener("click", () => {
+      const name = newGroupName.value.trim();
+      if(!name){
+        newGroupName.focus();
         return;
       }
 
-      items.push({
+      groups.push({
+        id: Date.now(),
         name,
-        price
+        items: []
       });
 
-      foodInput.value = "";
-      priceInput.value = "";
+      newGroupName.value = "";
+      render();
+    });
 
-      renderRows();
-      foodInput.focus();
+    newGroupName.addEventListener("keydown", (event) => {
+      if(event.key === "Enter"){
+        event.preventDefault();
+        addGroupBtn.click();
+      }
     });
 
     budgetInput.addEventListener("input", updateTotals);
 
     resetBtn.addEventListener("click", () => {
-      items = [];
-      renderRows();
+      groups = [{ id: Date.now(), name: "Generale", items: [] }];
+      render();
     });
 
-    updateTotals();
+    render();
   </script>
 </body>
 </html>
