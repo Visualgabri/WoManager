@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Spesa Alimentare</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --blue: #2563eb;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 16px 14px calc(28px + env(safe-area-inset-bottom));
+    }
+
+    h1 {
+      margin: 4px 0 16px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .budget-card {
+      background: #111827;
+      color: white;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      opacity: .75;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .budget-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .budget-input-wrap span {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    #budget {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: white;
+      font-size: 34px;
+      font-weight: 800;
+      padding: 0;
+      min-width: 0;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .summary-box {
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.08);
+    }
+
+    .summary-box small {
+      display: block;
+      opacity: .7;
+      margin-bottom: 4px;
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 21px;
+    }
+
+    .remaining-positive {
+      color: #86efac;
+    }
+
+    .remaining-negative {
+      color: #fca5a5;
+    }
+
+    .table-card {
+      background: var(--card);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .table-head,
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 105px 46px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-head {
+      background: #f9fafb;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .row {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .row input {
+      width: 100%;
+      min-width: 0;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      font-size: 16px;
+      padding: 0 10px;
+      outline: none;
+    }
+
+    .row input:focus,
+    .add-row input:focus,
+    #budget:focus {
+      border-color: var(--blue);
+    }
+
+    .delete-btn {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--red-light);
+      color: var(--red);
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 105px 46px;
+      gap: 8px;
+      padding: 10px;
+      background: white;
+    }
+
+    .add-row input {
+      width: 100%;
+      min-width: 0;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      padding: 0 10px;
+      outline: none;
+    }
+
+    .add-btn {
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      font-size: 25px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .reset-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .over {
+      color: #fecaca;
+    }
+
+    @media (max-width: 360px) {
+      .app {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .table-head,
+      .row,
+      .add-row {
+        grid-template-columns: minmax(0, 1fr) 88px 42px;
+      }
+
+      #budget {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <h1>Spesa alimentare</h1>
+
+    <section class="budget-card">
+      <div class="label">Budget totale</div>
+
+      <div class="budget-input-wrap">
+        <span>€</span>
+        <input
+          id="budget"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="0.01"
+          value="100"
+          aria-label="Budget totale"
+        />
+      </div>
+
+      <div class="summary">
+        <div class="summary-box">
+          <small>Speso</small>
+          <strong id="spent">€ 0,00</strong>
+        </div>
+
+        <div class="summary-box">
+          <small>Rimane</small>
+          <strong id="remaining" class="remaining-positive">€ 100,00</strong>
+        </div>
+      </div>
+
+      <div id="status" class="status">Budget disponibile</div>
+    </section>
+
+    <section class="table-card">
+      <div class="table-head">
+        <div>ALIMENTO</div>
+        <div>PREZZO</div>
+        <div></div>
+      </div>
+
+      <div id="rows"></div>
+
+      <form id="addForm" class="add-row">
+        <input
+          id="food"
+          type="text"
+          maxlength="60"
+          placeholder="Es. Riso"
+          autocomplete="off"
+          aria-label="Nome alimento"
+        />
+
+        <input
+          id="price"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="0.01"
+          placeholder="0,00"
+          aria-label="Prezzo"
+        />
+
+        <button class="add-btn" type="submit" aria-label="Aggiungi alimento">+</button>
+      </form>
+    </section>
+
+    <div class="footer-actions">
+      <div id="count" class="count">0 prodotti</div>
+      <button id="resetBtn" class="reset-btn" type="button">Svuota</button>
+    </div>
+  </main>
+
+  <script>
+    const budgetInput = document.getElementById("budget");
+    const spentEl = document.getElementById("spent");
+    const remainingEl = document.getElementById("remaining");
+    const statusEl = document.getElementById("status");
+    const rowsEl = document.getElementById("rows");
+    const addForm = document.getElementById("addForm");
+    const foodInput = document.getElementById("food");
+    const priceInput = document.getElementById("price");
+    const countEl = document.getElementById("count");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let items = [];
+
+    function toNumber(value) {
+      const n = parseFloat(String(value).replace(",", "."));
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    }
+
+    function euro(value) {
+      return new Intl.NumberFormat("it-IT", {
+        style: "currency",
+        currency: "EUR"
+      }).format(value);
+    }
+
+    function updateTotals() {
+      const budget = toNumber(budgetInput.value);
+      const spent = items.reduce((sum, item) => sum + toNumber(item.price), 0);
+      const remaining = budget - spent;
+
+      spentEl.textContent = euro(spent);
+      remainingEl.textContent = euro(remaining);
+
+      remainingEl.classList.toggle("remaining-positive", remaining >= 0);
+      remainingEl.classList.toggle("remaining-negative", remaining < 0);
+
+      if (remaining < 0) {
+        statusEl.textContent = "Budget superato di " + euro(Math.abs(remaining));
+        statusEl.classList.add("over");
+      } else if (budget > 0 && remaining <= budget * 0.15) {
+        statusEl.textContent = "Budget quasi esaurito";
+        statusEl.classList.remove("over");
+      } else {
+        statusEl.textContent = "Budget disponibile";
+        statusEl.classList.remove("over");
+      }
+
+      countEl.textContent =
+        items.length + (items.length === 1 ? " prodotto" : " prodotti");
+    }
+
+    function renderRows() {
+      rowsEl.innerHTML = "";
+
+      items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = item.name;
+        nameInput.setAttribute("aria-label", "Nome alimento");
+        nameInput.addEventListener("input", () => {
+          items[index].name = nameInput.value;
+        });
+
+        const priceInputRow = document.createElement("input");
+        priceInputRow.type = "number";
+        priceInputRow.inputMode = "decimal";
+        priceInputRow.min = "0";
+        priceInputRow.step = "0.01";
+        priceInputRow.value = item.price;
+        priceInputRow.setAttribute("aria-label", "Prezzo alimento");
+        priceInputRow.addEventListener("input", () => {
+          items[index].price = toNumber(priceInputRow.value);
+          updateTotals();
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "×";
+        deleteBtn.setAttribute("aria-label", "Elimina alimento");
+        deleteBtn.addEventListener("click", () => {
+          items.splice(index, 1);
+          renderRows();
+        });
+
+        row.appendChild(nameInput);
+        row.appendChild(priceInputRow);
+        row.appendChild(deleteBtn);
+
+        rowsEl.appendChild(row);
+      });
+
+      updateTotals();
+    }
+
+    addForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const name = foodInput.value.trim();
+      const price = toNumber(priceInput.value);
+
+      if (!name) {
+        foodInput.focus();
+        return;
+      }
+
+      items.push({
+        name,
+        price
+      });
+
+      foodInput.value = "";
+      priceInput.value = "";
+
+      renderRows();
+      foodInput.focus();
+    });
+
+    budgetInput.addEventListener("input", updateTotals);
+
+    resetBtn.addEventListener("click", () => {
+      items = [];
+      renderRows();
+    });
+
+    updateTotals();
+  </script>
+</body>
+</html>
