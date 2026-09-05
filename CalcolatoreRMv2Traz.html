@@ -41,15 +41,16 @@
             margin-bottom: 25px;
             font-size: 1.8em;
             font-weight: 800;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
         }
 
+        /* Selettore Modalità */
         .mode-selector {
             display: flex;
             background: #e2e8f0;
             border-radius: 12px;
             padding: 4px;
             margin-bottom: 25px;
-            gap: 4px;
         }
 
         .mode-btn {
@@ -84,9 +85,10 @@
             flex-direction: column;
         }
 
-        #bodyweight-options {
+        /* Container per opzioni trazioni (BW, Sesso, Età) */
+        #pullup-options {
             display: none;
-            grid-column: 1 / -1;
+            grid-column: 1 / -1; /* Occupa tutta la larghezza */
             background: rgba(102, 126, 234, 0.05);
             padding: 15px;
             border-radius: 12px;
@@ -94,7 +96,7 @@
             animation: fadeIn 0.4s ease;
         }
 
-        .bodyweight-grid {
+        .pullup-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
@@ -204,12 +206,14 @@
         .max-result .max-value {
             font-size: 2.8em;
             font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             line-height: 1.1;
         }
 
         .bw-reps-result .bw-reps-value {
             font-size: 2.2em;
             font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .max-subtext {
@@ -219,6 +223,7 @@
             font-weight: 500;
         }
 
+        /* Stile per il livello di forza */
         .strength-level {
             display: none;
             text-align: center;
@@ -231,6 +236,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            animation: fadeIn 0.4s ease;
         }
         .strength-level.show { display: block; }
         .lvl-principiante { background: #94a3b8; }
@@ -290,6 +296,7 @@
             background: white;
             padding: 4px 10px;
             border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .formula-info {
@@ -323,17 +330,17 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             text-align: center;
             font-weight: 500;
+            font-size: 0.95em;
         }
         .toast.show { opacity: 1; transform: translateY(0); }
 
         @media (max-width: 450px) {
-            .bodyweight-grid { grid-template-columns: 1fr; }
+            .pullup-grid { grid-template-columns: 1fr; }
             .rm-grid { grid-template-columns: repeat(2, 1fr); }
             .container { padding: 25px 15px; }
-            .mode-btn { font-size: 0.82em; }
         }
     </style>
 </head>
@@ -345,15 +352,16 @@
         <div class="mode-selector">
             <button class="mode-btn active" id="btn-standard" onclick="setMode('standard')">Standard</button>
             <button class="mode-btn" id="btn-pullup" onclick="setMode('pullup')">Trazioni</button>
-            <button class="mode-btn" id="btn-dip" onclick="setMode('dip')">Dip Parallele</button>
         </div>
         
         <div class="input-section">
-            <div id="bodyweight-options">
-                <div class="bodyweight-grid">
+            
+            <!-- Pannello Trazioni (BW, Sesso, Età) -->
+            <div id="pullup-options">
+                <div class="pullup-grid">
                     <div class="input-group">
-                        <label for="bodyweight">Peso Corporeo (kg)*</label>
-                        <input type="number" id="bodyweight" step="0.5" min="20" placeholder="Es. 76">
+                        <label for="bodyweight">Peso (kg)*</label>
+                        <input type="number" id="bodyweight" step="0.5" min="20" placeholder="Es. 75">
                     </div>
                     <div class="input-group">
                         <label for="gender">Sesso (Opz.)</label>
@@ -372,11 +380,11 @@
 
             <div class="input-group">
                 <label id="weight-label" for="weight">Carico (kg)</label>
-                <input type="number" id="weight" step="0.5" min="0" placeholder="Es. 40">
+                <input type="number" id="weight" step="0.5" min="0" placeholder="Es. 80">
             </div>
             <div class="input-group">
                 <label for="reps">Ripetizioni</label>
-                <input type="number" id="reps" min="1" max="25" placeholder="Es. 8">
+                <input type="number" id="reps" min="1" max="20" placeholder="Es. 5">
             </div>
         </div>
         
@@ -398,6 +406,7 @@
         </button>
         
         <div class="results" id="results">
+            
             <div class="primary-results-grid">
                 <div class="max-result">
                     <h2 id="max-title">Il tuo 1RM (Massimale)</h2>
@@ -405,22 +414,28 @@
                     <div class="max-subtext" id="maxSubtext"></div>
                 </div>
                 
+                <!-- Riquadro reps a corpo libero -->
                 <div class="bw-reps-result" id="bwRepsContainer">
                     <h3>Stima Reps a Vuoto</h3>
                     <div class="bw-reps-value" id="bwRepsValue">0</div>
-                    <div class="max-subtext">A corpo libero</div>
+                    <div class="max-subtext">Corpo libero</div>
                 </div>
             </div>
 
+            <!-- Riquadro Livello di Forza -->
             <div id="strengthLevel" class="strength-level">
                 Livello: <span id="strengthText"></span>
             </div>
             
-            <div class="rm-grid" id="rmGrid"></div>
+            <div class="rm-grid" id="rmGrid">
+                <!-- I risultati RM verranno inseriti qui -->
+            </div>
             
             <div class="comparison-results">
                 <h3 id="comparison-title">Confronto Formule</h3>
-                <ul id="comparisonList"></ul>
+                <ul id="comparisonList">
+                    <!-- I risultati del confronto verranno inseriti qui -->
+                </ul>
             </div>
 
             <div class="formula-info">
@@ -435,13 +450,6 @@
     <script>
         let currentMode = 'standard';
 
-        // Biomeccanica pura: percentuale di peso corporeo accelerata contro gravità
-        const EXERCISE_CONFIG = {
-            standard: { bwFactor: 0.00 },
-            pullup:   { bwFactor: 0.94 }, // Mani/avambracci ancorati alla sbarra (~94% BW sollevato)
-            dip:      { bwFactor: 0.98 }  // Solo l'appoggio delle mani è escluso (~98% BW sollevato)
-        };
-
         const formulas = {
             brzycki: (w, r) => w * (36 / (37 - r)),
             epley: (w, r) => w * (1 + r / 30),
@@ -452,23 +460,34 @@
             wathan: (w, r) => w * (100 / (48.8 + 53.8 * Math.exp(-0.075 * r)))
         };
 
+        const reverseFormulas = {
+            brzycki: (M, W) => 37 - (36 * W / M),
+            epley: (M, W) => 30 * ((M / W) - 1),
+            lander: (M, W) => (101.3 - (100 * W / M)) / 2.67123,
+            lombardi: (M, W) => Math.pow(M / W, 10),
+            mayhew: (M, W) => { const val = ((100 * W / M) - 52.2) / 41.9; return val > 0 ? Math.log(val) / -0.055 : null; },
+            oconner: (M, W) => ((M / W) - 1) / 0.025,
+            wathan: (M, W) => { const val = ((100 * W / M) - 48.8) / 53.8; return val > 0 ? Math.log(val) / -0.075 : null; }
+        };
+
         const formulaDetails = {
-            brzycki: { name: 'Brzycki', desc: 'Accurata per 2-10 ripetizioni. Standard nel sollevamento pesi.' },
-            epley: { name: 'Epley', desc: 'Formula lineare ampiamente usata per carichi sia pesanti che medi.' },
-            lander: { name: 'Lander', desc: 'Formula affidabile per basse ripetizioni.' },
-            lombardi: { name: 'Lombardi', desc: 'Tende a restituire stime conservative su rep medio-alte.' },
-            mayhew: { name: 'Mayhew', desc: 'Formula esponenziale molto precisa per atleti esperti.' },
-            oconner: { name: 'O\'Conner', desc: 'Curva lineare semplice e bilanciata.' },
-            wathan: { name: 'Wathan', desc: 'Curva progressiva, molto accurata sui range multi-ripetizione.' }
+            brzycki: { name: 'Brzycki', desc: 'Accurata per 2-10 ripetizioni. Molto usata.' },
+            epley: { name: 'Epley', desc: 'Ottima per un range vario di ripetizioni.' },
+            lander: { name: 'Lander', desc: 'Buona per ripetizioni moderate e carichi pesanti.' },
+            lombardi: { name: 'Lombardi', desc: 'Conservativa, tende a sottostimare leggermente.' },
+            mayhew: { name: 'Mayhew', desc: 'Molto precisa per alte intensità e atleti esperti.' },
+            oconner: { name: 'O\'Conner', desc: 'Formula semplice, lineare e conservativa.' },
+            wathan: { name: 'Wathan', desc: 'Matematicamente precisa su vari range di ripetizioni.' }
         };
 
         function setMode(mode) {
             currentMode = mode;
             
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-standard').classList.remove('active');
+            document.getElementById('btn-pullup').classList.remove('active');
             document.getElementById(`btn-${mode}`).classList.add('active');
 
-            const bwOptions = document.getElementById('bodyweight-options');
+            const pullupOptions = document.getElementById('pullup-options');
             const weightLabel = document.getElementById('weight-label');
             const maxTitle = document.getElementById('max-title');
             const comparisonTitle = document.getElementById('comparison-title');
@@ -476,17 +495,12 @@
             const strengthLvl = document.getElementById('strengthLevel');
 
             if (mode === 'pullup') {
-                bwOptions.style.display = 'block';
-                weightLabel.textContent = 'Zavorra Trazioni (kg)';
-                maxTitle.textContent = '1RM Zavorra Trazioni';
-                comparisonTitle.textContent = 'Confronto Formule (Zavorra)';
-            } else if (mode === 'dip') {
-                bwOptions.style.display = 'block';
-                weightLabel.textContent = 'Zavorra Dip (kg)';
-                maxTitle.textContent = '1RM Zavorra Dip';
+                pullupOptions.style.display = 'block';
+                weightLabel.textContent = 'Zavorra (kg)';
+                maxTitle.textContent = '1RM Zavorra (Max Extra)';
                 comparisonTitle.textContent = 'Confronto Formule (Zavorra)';
             } else {
-                bwOptions.style.display = 'none';
+                pullupOptions.style.display = 'none';
                 weightLabel.textContent = 'Carico (kg)';
                 maxTitle.textContent = 'Il tuo 1RM (Massimale)';
                 comparisonTitle.textContent = 'Confronto Formule 1RM';
@@ -511,59 +525,33 @@
             }, 3000);
         }
 
-        // Standard calisthenici ufficiali rapportati al Peso Corporeo Reale
-        // Ratio = (BW effettivo + Zavorra 1RM) / BW Reale
-        function evalStrength(mode, total1RM, bw, gender, ageStr) {
-            if (!gender || (mode !== 'pullup' && mode !== 'dip')) return null;
+        // Funzione per valutare il livello di forza
+        function evalStrength(total1RM, bw, gender, ageStr) {
+            if (!gender) return null; // Se non c'è il sesso, niente valutazione
             
             const ratio = total1RM / bw;
-            const age = parseInt(ageStr) || 25;
+            const age = parseInt(ageStr) || 25; // Default 25 anni se non inserita
 
+            // Modificatore Età (declino fisiologico)
             let ageMod = 1.0;
             if (age >= 40 && age < 50) ageMod = 0.93;
             else if (age >= 50 && age < 60) ageMod = 0.85;
             else if (age >= 60) ageMod = 0.75;
 
+            // Rapporti Standard (Total Weight / Bodyweight) per Uomo e Donna
             // Soglie: [Novizio, Intermedio, Avanzato, Elite]
             const standards = {
-                pullup: {
-                    male: [1.15, 1.45, 1.75, 2.05],    // Per 76kg uomo: Novizio ~+12kg, Intermedio ~+35kg, Avanzato ~+57kg, Elite ~+80kg
-                    female: [1.00, 1.20, 1.40, 1.65]
-                },
-                dip: {
-                    male: [1.30, 1.65, 2.00, 2.35],    // Per 76kg uomo: Novizio ~+23kg, Intermedio ~+50kg, Avanzato ~+76kg, Elite ~+102kg
-                    female: [1.10, 1.35, 1.60, 1.85]
-                }
+                male: [1.10, 1.40, 1.70, 2.00],
+                female: [0.95, 1.20, 1.45, 1.70]
             };
 
-            const exerciseStandards = standards[mode];
-            if (!exerciseStandards || !exerciseStandards[gender]) return null;
-
-            const thresholds = exerciseStandards[gender].map(val => val * ageMod);
+            const thresholds = standards[gender].map(val => val * ageMod);
 
             if (ratio < thresholds[0]) return { text: "Principiante", class: "lvl-principiante" };
             if (ratio < thresholds[1]) return { text: "Novizio", class: "lvl-novizio" };
             if (ratio < thresholds[2]) return { text: "Intermedio", class: "lvl-intermedio" };
             if (ratio < thresholds[3]) return { text: "Avanzato", class: "lvl-avanzato" };
             return { text: "Elite", class: "lvl-elite" };
-        }
-
-        // Modello fisiologico per stima reps a vuoto (basato su % di 1RM a corpo libero)
-        function estimateBodyweightReps(mode, total1RM, effectiveBw) {
-            const intensity = effectiveBw / total1RM; // Esempio: se pesi 72kg su 140kg max, lavori al 51% dell'1RM
-            if (intensity >= 1) return 0;
-            if (intensity >= 0.95) return 1;
-
-            // Relazione intensità-reps specifica per tirata vs spinta
-            let est;
-            if (mode === 'dip') {
-                // I dip permettono molte più ripetizioni ad intensità < 60% rispetto alle trazioni
-                est = 35 * Math.pow((1 - intensity) / 0.5, 1.25);
-            } else {
-                // Trazioni: affaticamento dorsale/avambracci più marcato
-                est = 27 * Math.pow((1 - intensity) / 0.5, 1.15);
-            }
-            return Math.max(1, Math.round(est));
         }
 
         function calculateRM() {
@@ -574,28 +562,23 @@
             const ageInput = document.getElementById('age').value;
             const selectedFormulaKey = document.getElementById('formula').value;
             
-            const isCalisthenic = (currentMode === 'pullup' || currentMode === 'dip');
-
             if (isNaN(weightInput) || isNaN(reps) || reps <= 0) {
                 showToast('Inserisci valori validi per calcolare.');
                 return;
             }
 
-            if (isCalisthenic && (isNaN(bwInput) || bwInput <= 0)) {
+            if (currentMode === 'pullup' && (isNaN(bwInput) || bwInput <= 0)) {
                 showToast('Inserisci il tuo peso corporeo obbligatorio.');
                 return;
             }
             
             if (reps >= 37 && selectedFormulaKey === 'brzycki') {
-                 showToast('Brzycki non è valida oltre 36 ripetizioni.');
+                 showToast('Brzycki non è valida per 37+ rep.');
                  return;
             }
 
-            const cfg = EXERCISE_CONFIG[currentMode];
-            const effectiveBw = isCalisthenic ? (bwInput * cfg.bwFactor) : 0;
-            const totalWeightMoved = effectiveBw + weightInput;
-
-            // Calcolo 1RM totale con la formula scelta pura e non alterata
+            // Calcolo base
+            const totalWeightMoved = currentMode === 'pullup' ? weightInput + bwInput : weightInput;
             const totalOneRM = formulas[selectedFormulaKey](totalWeightMoved, reps);
             
             if (!isFinite(totalOneRM) || totalOneRM < 0) {
@@ -609,19 +592,24 @@
             const bwRepsValueEl = document.getElementById('bwRepsValue');
             const strengthLvl = document.getElementById('strengthLevel');
 
-            if (isCalisthenic) {
-                const added1RM = totalOneRM - effectiveBw;
+            if (currentMode === 'pullup') {
+                const added1RM = totalOneRM - bwInput;
                 const displayMax = added1RM > 0 ? added1RM : 0;
                 
                 maxValueEl.textContent = `+${displayMax.toFixed(1)} kg`;
-                maxSubtextEl.innerHTML = `Peso Totale Spostato: <b>${totalOneRM.toFixed(1)} kg</b> (BW sollevato: ${effectiveBw.toFixed(1)} kg)`;
+                maxSubtextEl.innerHTML = `Peso Totale Spostato: <b>${totalOneRM.toFixed(1)} kg</b>`;
                 
-                // Stima reps a vuoto corretta
-                const estReps = estimateBodyweightReps(currentMode, totalOneRM, effectiveBw);
+                // REPS A CORPO LIBERO
+                let estReps = reverseFormulas[selectedFormulaKey](totalOneRM, bwInput);
+                if (estReps === null || isNaN(estReps)) {
+                    estReps = reverseFormulas['epley'](totalOneRM, bwInput); 
+                }
+                estReps = Math.max(0, Math.round(estReps));
                 bwRepsValueEl.textContent = `~ ${estReps}`;
                 bwRepsContainer.style.display = 'block';
 
-                const levelData = evalStrength(currentMode, totalOneRM, bwInput, genderInput, ageInput);
+                // LIVELLO DI FORZA
+                const levelData = evalStrength(totalOneRM, bwInput, genderInput, ageInput);
                 if (levelData) {
                     strengthLvl.className = `strength-level show ${levelData.class}`;
                     document.getElementById('strengthText').textContent = levelData.text;
@@ -639,20 +627,18 @@
             document.getElementById('formulaTitle').textContent = `Formula: ${formulaDetails[selectedFormulaKey].name}`;
             document.getElementById('formulaDescription').innerHTML = formulaDetails[selectedFormulaKey].desc;
             
-            // Griglia RM corretta
+            // Griglia RM
             const rmGrid = document.getElementById('rmGrid');
             rmGrid.innerHTML = '';
+            const percentages = { 2: 0.95, 3: 0.93, 4: 0.90, 5: 0.87, 6: 0.85, 7: 0.83, 8: 0.80, 9: 0.77, 10: 0.75, 11: 0.73, 12: 0.70 };
             
             for (let rm = 2; rm <= 12; rm++) {
-                // Calcola il carico per le varie RM invertendo la formula selezionata
-                const ratio = formulas[selectedFormulaKey](1, rm);
-                const totalRmWeight = totalOneRM / ratio;
-                
+                const totalRmWeight = totalOneRM * percentages[rm];
                 let displayWeight;
                 let isAssisted = false;
 
-                if (isCalisthenic) {
-                    displayWeight = totalRmWeight - effectiveBw;
+                if (currentMode === 'pullup') {
+                    displayWeight = totalRmWeight - bwInput;
                     if (displayWeight < 0) isAssisted = true;
                 } else {
                     displayWeight = totalRmWeight;
@@ -662,7 +648,7 @@
                 rmItem.className = 'rm-item';
                 let weightText = isAssisted 
                     ? `${displayWeight.toFixed(1)} kg <span class="rm-assisted">(Con Elastico)</span>`
-                    : `${displayWeight > 0 && isCalisthenic ? '+' : ''}${displayWeight.toFixed(1)} kg`;
+                    : `${displayWeight > 0 && currentMode === 'pullup' ? '+' : ''}${displayWeight.toFixed(1)} kg`;
 
                 rmItem.innerHTML = `<div class="rm-label">${rm}RM</div><div class="rm-value">${weightText}</div>`;
                 rmGrid.appendChild(rmItem);
@@ -675,7 +661,7 @@
             
             for (const key in formulas) {
                 let calcTotalRM = formulas[key](totalWeightMoved, reps);
-                let finalValue = isCalisthenic ? calcTotalRM - effectiveBw : calcTotalRM;
+                let finalValue = currentMode === 'pullup' ? calcTotalRM - bwInput : calcTotalRM;
                 if (isFinite(finalValue)) {
                     comparisonResults.push({ name: formulaDetails[key].name, value: finalValue });
                 }
@@ -684,7 +670,7 @@
             comparisonResults.sort((a, b) => b.value - a.value);
             comparisonResults.forEach(res => {
                 const li = document.createElement('li');
-                let valText = res.value < 0 ? 'Corpo Libero' : `${res.value > 0 && isCalisthenic ? '+' : ''}${res.value.toFixed(1)} kg`;
+                let valText = res.value < 0 ? 'Corpo Libero' : `${res.value > 0 && currentMode === 'pullup' ? '+' : ''}${res.value.toFixed(1)} kg`;
                 li.innerHTML = `<span class="formula-name">${res.name}</span><span class="formula-value">${valText}</span>`;
                 comparisonList.appendChild(li);
             });
@@ -704,7 +690,7 @@
             const bw = document.getElementById('bodyweight').value;
             
             if (weight && reps && (currentMode === 'standard' || bw)) {
-                calculationTimeout = setTimeout(calculateRM, 400);
+                calculationTimeout = setTimeout(calculateRM, 500);
             }
         }
 
